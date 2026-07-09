@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EEF1F6;
+  --bg-clinical: #F8FAFB;
+  --bg-dark: #0A0E18;
+  --border: #DDE2EC;
+  --border-strong: #B8C2D6;
+  --border-focus: #1D6FD8;
+  --brand: #1A4F8A;
+  --brand-mid: #1D6FD8;
+  --brand-light: #EBF3FF;
+  --brand-text: #1558C0;
+  --status-scheduled: #1D6FD8;
+  --status-arrived: #059669;
+  --status-in-progress: #D97706;
+  --status-completed: #16A34A;
+  --status-cancelled: #DC2626;
+  --status-no-show: #9333EA;
+  --urgent-critical: #DC2626;
+  --urgent-high: #EA580C;
+  --urgent-medium: #D97706;
+  --urgent-low: #16A34A;
+  --urgent-normal: #6B7280;
+  --bill-paid: #16A34A;
+  --bill-pending: #D97706;
+  --bill-denied: #DC2626;
+  --bill-submitted: #1D6FD8;
+  --bill-draft: #6B7280;
+  --ai: #7C3AED;
+  --ai-light: #F5F3FF;
+  --ai-border: #DDD6FE;
+  --ai-text: #6D28D9;
+  --drug-contraindicated: #DC2626;
+  --drug-major: #EA580C;
+  --drug-moderate: #D97706;
+  --drug-minor: #16A34A;
+  --lab-critical-high: #DC2626;
+  --lab-critical-low: #9333EA;
+  --lab-high: #EA580C;
+  --lab-low: #3B82F6;
+  --lab-normal: #16A34A;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-clinical: #1E293B;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-clinical { font-family: 'Source Serif 4', Georgia, serif; }
+.font-code { font-family: 'JetBrains Mono', monospace; }
+
+@layer base {
+  * { @apply border-[var(--border)]; }
+}
