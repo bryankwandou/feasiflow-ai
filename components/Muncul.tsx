@@ -41,9 +41,13 @@ export function Muncul({ children, tunda = 0, className = "" }: { children: Reac
 
 export function Hitung({ nilai, desimal = 1, className = "" }: { nilai: number; desimal?: number; className?: string }) {
   const { ref, tampak } = useTerlihat<HTMLSpanElement>(0.4);
-  const [n, setN] = useState(0);
+  // Nilai akhir sudah tertulis sejak render server (terbaca saat disalin, oleh pembaca layar, dan tanpa JavaScript);
+  // animasi hitung naik hanya berjalan sekali ketika angka masuk layar.
+  const [n, setN] = useState(nilai);
+  const sudah = useRef(false);
   useEffect(() => {
-    if (!tampak) return;
+    if (!tampak || sudah.current) return;
+    sudah.current = true;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setN(nilai);
       return;

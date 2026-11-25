@@ -8,7 +8,7 @@ const AGENTS = [
   { name: "A3 Penilaian", desc: "Memberi skor 10 indikator rubrik. Tujuh indikator ditetapkan kode terhadap data resmi dan isian, dan skor penuh lainnya hanya boleh bila buktinya tersimpan.", alat: "lihat_bukti · minta_riset" },
 ];
 
-const HURUF = ["a", "b", "c"];
+const HURUF = ["a", "b", "c", "d"];
 
 const DIMENSI = [
   { kode: "D1", nama: "Pasar", teks: "66,7", nilai: 66.7 },
@@ -18,8 +18,8 @@ const DIMENSI = [
 
 const BUKTI = [
   { kode: "D1a", skor: "100", judul: "Penyaluran di wilayah sasaran tumbuh", bukti: "Penyaluran pinjaman di Sulawesi Selatan naik dari Rp4.147,1 miliar (2023) ke Rp7.185,6 miliar (2025), rata-rata 31,6 persen per tahun, di atas angka nasional 18,8 persen.", sumber: "Statistik LPBBTI OJK, edisi Desember 2025" },
-  { kode: "D2c", skor: "50", judul: "Biaya utama tertutup pendapatan", bukti: "Pendapatan dan biaya disebutkan tanpa besaran angka, sehingga kecukupannya belum dapat dibuktikan.", sumber: "keluaran A2, ditetapkan kode" },
-  { kode: "D3b", skor: "100", judul: "Rencana menangani gagal bayar", bukti: "Rencana memuat 3 tindakan: penilaian kredit dari catatan penjualan, batas pinjaman bertahap, dan dana cadangan.", sumber: "keluaran A2" },
+  { kode: "D2c", skor: "100", judul: "Biaya utama tertutup pendapatan", bukti: "Proyeksi pendapatan Rp60 juta per bulan lebih besar dari biaya Rp45 juta per bulan.", sumber: "isian proyeksi dan keluaran A2, diperiksa kode" },
+  { kode: "D3b", skor: "100", judul: "Rencana menangani gagal bayar", bukti: "Rencana memuat 3 tindakan: penilaian kelayakan dari riwayat setoran harian, penagihan harian oleh agen, dan asuransi kredit.", sumber: "keluaran A2, jumlah tindakan dihitung kode" },
 ];
 
 const RUBRIK = [
@@ -104,7 +104,8 @@ export default function Home() {
             Setiap skor membawa sumbernya.
           </h2>
           <p className="mt-4 max-w-xl text-[15px] text-white/60 leading-relaxed">
-            Contoh di bawah diambil dari satu analisis nyata: pinjaman modal kerja harian untuk pedagang pasar di Sulawesi Selatan.
+            Contoh di bawah diambil dari satu analisis nyata: pinjaman modal kerja harian untuk pedagang pasar di Sulawesi Selatan.{" "}
+            <a href="/analyze/bukti_25nov_pedagang" className="underline underline-offset-4 hover:text-fg">Lihat laporan lengkapnya</a>.
           </p>
           </Muncul>
 
