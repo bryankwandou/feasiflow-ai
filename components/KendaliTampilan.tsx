@@ -1,11 +1,16 @@
 "use client";
 
-// Kendali tampilan global: pemilih bahasa + tombol tema, dan penerjemah teks halaman.
-// Halaman ditulis dalam bahasa Indonesia; teks yang sama persis dengan nilai di kamus id
-// diganti dengan nilai kamus bahasa terpilih. Teks asli disimpan agar bisa dikembalikan.
+// Kendali tampilan global: pemilih bahasa + tombol tema (pojok kanan bawah, tidak menutupi menu),
+// dan penerjemah teks halaman.
+// Halaman ditulis dalam bahasa Indonesia. Terjemahan diambil dari dua sumber:
+//   1. kamus berkunci (lib/i18n/kamus/<kode>.ts), dicocokkan lewat nilai bahasa Indonesianya;
+//   2. peta teks tampil (lib/i18n/tampil/<kode>.json): seluruh teks yang tampil di halaman produksi,
+//      dikumpulkan otomatis lalu diterjemahkan, berkunci teks Indonesia yang sudah dirapikan spasinya.
+// Pencocokan dilakukan per elemen (judul yang dipecah menjadi beberapa span tetap cocok) lalu per teks.
+// Teks asli selalu disimpan sehingga kembali ke bahasa Indonesia tidak memerlukan muat ulang.
 
 import { useEffect } from "react";
-import { KAMUS_SUMBER, muatKamus, type Kunci } from "@/lib/i18n";
+import { KAMUS_SUMBER, muatKamus, type KodeBahasa, type Kunci } from "@/lib/i18n";
 import { PilihBahasa } from "@/components/PilihBahasa";
 import { useBahasa } from "@/lib/i18n/PenyediaBahasa";
 import ToggleTema from "@/components/ToggleTema";
@@ -13,20 +18,55 @@ import ToggleTema from "@/components/ToggleTema";
 const asli = new WeakMap<Text, string>();
 const asliAttr = new WeakMap<Element, Record<string, string>>();
 const ATTR = ["placeholder", "title", "aria-label"];
+const ELEMEN = "h1,h2,h3,h4,p,li,td,th,dt,dd,label,button,a,summary,option,span,div,legend,figcaption,small,strong,em";
+const BLOK = "p,div,li,h1,h2,h3,h4,ul,ol,table,section,form,details,pre";
+const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+const LEWATI = "script,style,textarea,pre,[data-tanpa-terjemah]";
+
+async function muatTampil(kode: KodeBahasa): Promise<Record<string, string>> {
+  try {
+    return (await import(`@/lib/i18n/tampil/${kode}.json`)).default as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
 
 function terapkan(peta: Map<string, string> | null) {
+  // Kembalikan semua teks ke aslinya dulu, agar pergantian bahasa selalu berangkat dari bahasa Indonesia.
   const jalan = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const simpul: Text[] = [];
   let n: Node | null;
   while ((n = jalan.nextNode())) {
     const t = n as Text;
-    const p = t.parentElement;
-    if (!p || p.closest("script,style,textarea,[data-tanpa-terjemah]")) continue;
+    if (!t.parentElement || t.parentElement.closest(LEWATI)) continue;
     if (!asli.has(t)) asli.set(t, t.data);
     const a = asli.get(t)!;
-    const kunci = a.trim();
-    const baru = peta && kunci ? peta.get(kunci) : undefined;
-    const isi = baru ? a.replace(kunci, baru) : a;
-    if (t.data !== isi) t.data = isi;
+    if (t.data !== a) t.data = a;
+    simpul.push(t);
+  }
+  if (peta) {
+    const sudah = new Set<Text>();
+    // 1) per elemen: teks gabungan elemen tanpa anak blok
+    document.body.querySelectorAll(ELEMEN).forEach((el) => {
+      if (el.closest(LEWATI) || el.querySelector(BLOK)) return;
+      const ts: Text[] = [];
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let m: Node | null;
+      while ((m = w.nextNode())) ts.push(m as Text);
+      if (ts.length < 2 || ts.some((t) => sudah.has(t))) return;
+      const baru = peta.get(norm(ts.map((t) => asli.get(t) ?? t.data).join("")));
+      if (!baru) return;
+      const pertama = ts.find((t) => norm(t.data)) || ts[0];
+      ts.forEach((t) => { t.data = t === pertama ? baru : (/\s$/.test(t.data) ? " " : ""); sudah.add(t); });
+    });
+    // 2) per teks
+    for (const t of simpul) {
+      if (sudah.has(t)) continue;
+      const a = asli.get(t)!;
+      const k = norm(a);
+      const baru = k ? peta.get(k) : undefined;
+      if (baru) t.data = a.replace(a.trim(), baru);
+    }
   }
   document.body.querySelectorAll("[placeholder],[title],[aria-label]").forEach((el) => {
     if (el.closest("[data-tanpa-terjemah]")) return;
@@ -37,10 +77,16 @@ function terapkan(peta: Map<string, string> | null) {
       asliAttr.set(el, s);
     }
     for (const [k, v] of Object.entries(s)) {
-      const baru = peta?.get(v.trim()) ?? v;
+      const baru = peta?.get(norm(v)) ?? v;
       if (el.getAttribute(k) !== baru) el.setAttribute(k, baru);
     }
   });
+  const judul = document.querySelector("title");
+  if (judul) {
+    const ds = judul.dataset as DOMStringMap & { asli?: string };
+    ds.asli ??= judul.textContent || "";
+    judul.textContent = peta?.get(norm(ds.asli)) ?? ds.asli;
+  }
 }
 
 export default function KendaliTampilan() {
@@ -58,10 +104,10 @@ export default function KendaliTampilan() {
     };
     (async () => {
       if (kode !== "id") {
-        const k = await muatKamus(kode);
-        peta = new Map();
+        const [k, tampil] = await Promise.all([muatKamus(kode), muatTampil(kode)]);
+        peta = new Map(Object.entries(tampil));
         for (const kunci of Object.keys(KAMUS_SUMBER) as Kunci[]) {
-          const dari = KAMUS_SUMBER[kunci]?.trim();
+          const dari = norm(KAMUS_SUMBER[kunci] || "");
           const ke = k[kunci];
           if (dari && ke && !dari.includes("{")) peta.set(dari, ke);
         }
@@ -81,7 +127,11 @@ export default function KendaliTampilan() {
   }, [kode]);
 
   return (
-    <div data-tanpa-terjemah className="fixed right-3 top-3 z-[60] flex items-center gap-2 rounded-xl border border-line bg-white/90 p-1.5 shadow-sm backdrop-blur">
+    <div
+      data-tanpa-terjemah
+      className="fixed bottom-4 right-4 z-[60] flex items-center gap-2 rounded-xl border p-1.5 shadow-lg backdrop-blur"
+      style={{ background: "var(--tema-surface)", borderColor: "var(--tema-line)", color: "rgb(var(--c-fg))" }}
+    >
       <PilihBahasa />
       <ToggleTema />
     </div>

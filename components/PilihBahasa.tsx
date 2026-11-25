@@ -24,8 +24,9 @@ export function PilihBahasa({ className = "", gelap = false, labelTerlihat = fal
           if (adalahKode(e.target.value)) ganti(e.target.value);
         }}
         className={`rounded-lg border px-2.5 py-1.5 text-sm focus-ring cursor-pointer ${
-          gelap ? "border-white/20 bg-transparent text-white hover:border-white/40 [&>option]:text-fg" : "border-line bg-white text-fg hover:border-fg"
+          gelap ? "border-white/20 bg-transparent text-white hover:border-white/40 [&>option]:text-fg" : ""
         }`}
+        style={gelap ? undefined : { background: "var(--tema-surface)", color: "var(--tema-fg)", borderColor: "var(--tema-kontrol)" }}
       >
         {BAHASA.map((b) => (
           <option key={b.kode} value={b.kode} lang={b.kode}>
