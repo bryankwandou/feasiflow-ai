@@ -13,26 +13,26 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       colors: {
-        // Cohesive cool-gray surface system + single indigo accent.
-        base: "#0a0b0f",       // page background
-        surface: "#111319",    // card
-        elevated: "#171a22",   // raised card / hover
-        line: "#222632",       // hairline border
-        fg: "#e7e9ee",         // primary text
-        muted: "#9aa1b0",      // secondary text
-        faint: "#6a7283",      // tertiary text
+        // Permukaan terang hangat dengan satu aksen hitam.
+        base: "#f5f5f3",
+        surface: "#ffffff",
+        elevated: "#fafaf8",
+        line: "#e3e3df",
+        fg: "#111111",
+        muted: "#5d5d58",
+        faint: "#8b8b85",
         accent: {
-          DEFAULT: "#6366f1",
-          fg: "#a5b4fc",
-          400: "#818cf8",
-          500: "#6366f1",
-          600: "#4f46e5",
+          DEFAULT: "#111111",
+          fg: "#111111",
+          400: "#3a3a38",
+          500: "#111111",
+          600: "#000000",
         },
-        brand: { 50: "#eff6ff", 500: "#3b82f6", 600: "#2563eb", 700: "#1d4ed8" },
+        brand: { 50: "#f5f5f3", 500: "#111111", 600: "#111111", 700: "#000000" },
       },
       boxShadow: {
-        card: "0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.6)",
-        glow: "0 0 0 1px rgba(99,102,241,0.25), 0 8px 30px -8px rgba(99,102,241,0.35)",
+        card: "0 1px 2px rgba(17,17,17,0.04), 0 12px 32px -20px rgba(17,17,17,0.18)",
+        glow: "0 10px 28px -14px rgba(17,17,17,0.55)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

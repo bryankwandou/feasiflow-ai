@@ -1,148 +1,270 @@
-import Link from "next/link";
-import { ArrowRight, Brain, BarChart3, Shield, Zap } from "lucide-react";
+import { MedanTitik } from "@/components/MedanTitik";
+import { Muncul, Hitung } from "@/components/Muncul";
+import { TombolUtama, JudulKata } from "@/components/Gerak";
 
 const AGENTS = [
-  { name: "Orchestrator", desc: "Menganalisis parameter & menentukan prioritas analisis" },
-  { name: "Business Model Canvas", desc: "Menyusun blok inti model bisnis" },
-  { name: "Market Research", desc: "Riset TAM / SAM / SOM & tren pasar real-time" },
-  { name: "Competitor Analysis", desc: "Identifikasi & analisis kompetitor langsung" },
-  { name: "Risk Analysis", desc: "Analisis risiko 4 dimensi + dampak skenario" },
-  { name: "Recommendation", desc: "Hitung skor 0–100 & rekomendasi strategis" },
+  { name: "A1 Riset", desc: "Memilih sendiri kueri dan laman, membaca isi laman secara utuh, lalu memeriksa Direktori dan Statistik LPBBTI OJK.", alat: "cari_web · baca_laman · cek_direktori_ojk · cek_statistik_ojk" },
+  { name: "A2 Analisis", desc: "Menyusun Business Model Canvas 9 blok dan daftar risiko dari temuan A1, tanpa mengambil data baru.", alat: "lihat_bukti · minta_riset" },
+  { name: "A3 Penilaian", desc: "Memberi skor 10 indikator rubrik. Tujuh indikator ditetapkan kode terhadap data resmi dan isian, dan skor penuh lainnya hanya boleh bila buktinya tersimpan.", alat: "lihat_bukti · minta_riset" },
+];
+
+const HURUF = ["a", "b", "c"];
+
+const DIMENSI = [
+  { kode: "D1", nama: "Pasar", teks: "66,7", nilai: 66.7 },
+  { kode: "D2", nama: "Model bisnis", teks: "87,5", nilai: 87.5 },
+  { kode: "D3", nama: "Regulasi", teks: "100", nilai: 100 },
+];
+
+const BUKTI = [
+  { kode: "D1a", skor: "100", judul: "Penyaluran di wilayah sasaran tumbuh", bukti: "Penyaluran pinjaman di Sulawesi Selatan naik dari Rp4.147,1 miliar (2023) ke Rp7.185,6 miliar (2025), rata-rata 31,6 persen per tahun, di atas angka nasional 18,8 persen.", sumber: "Statistik LPBBTI OJK, edisi Desember 2025" },
+  { kode: "D2c", skor: "50", judul: "Biaya utama tertutup pendapatan", bukti: "Pendapatan dan biaya disebutkan tanpa besaran angka, sehingga kecukupannya belum dapat dibuktikan.", sumber: "keluaran A2, ditetapkan kode" },
+  { kode: "D3b", skor: "100", judul: "Rencana menangani gagal bayar", bukti: "Rencana memuat 3 tindakan: penilaian kredit dari catatan penjualan, batas pinjaman bertahap, dan dana cadangan.", sumber: "keluaran A2" },
+];
+
+const RUBRIK = [
+  { kode: "D1", nama: "Pasar dan permintaan", butir: ["Penyaluran di wilayah sasaran tumbuh dibanding angka nasional.", "Ukuran segmen penerima dana tersedia dalam data resmi.", "Ada pembeda yang jelas dari penyelenggara berizin."] },
+  { kode: "D2", nama: "Model bisnis dan keuangan", butir: ["Lima blok inti BMC terisi tanpa saling bertentangan.", "Ada arus pendapatan berulang.", "Biaya utama dapat ditutup oleh arus pendapatan.", "Rencana modal dan SDM memenuhi syarat POJK 40/2024."] },
+  { kode: "D3", nama: "Regulasi dan risiko", butir: ["Model usaha termasuk kegiatan yang diizinkan peraturan.", "Risiko gagal bayar memiliki rencana penanganan.", "Perlindungan data pengguna memiliki rencana penanganan."] },
+];
+
+const KELAS = [
+  { nama: "Layak", syarat: "Skor 70 ke atas" },
+  { nama: "Layak Bersyarat", syarat: "Skor 50 sampai di bawah 70" },
+  { nama: "Tidak Layak", syarat: "Skor di bawah 50 atau gugur" },
 ];
 
 const STEPS = [
-  { icon: Brain, step: "01", title: "Input Parameter", desc: "Parameter terstruktur: industri, modal, tim, model operasi, skenario dinamis." },
-  { icon: Zap, step: "02", title: "Agen Bekerja Paralel", desc: "Orchestrator, BMC, Market, Kompetitor, Sentimen, Risiko, Regulasi, Finansial, Rekomendasi." },
-  { icon: BarChart3, step: "03", title: "Laporan Lengkap", desc: "Skor 0–100 + BMC + TAM/SAM/SOM + kompetitor + risiko + rekomendasi strategis." },
+  { step: "01", title: "Isi 17 isian ide", desc: "Produk, segmen, wilayah, pendapatan, dan deskripsi wajib. Sisanya opsional: saluran, biaya, proyeksi, badan hukum, modal disetor, SDM, layanan, calon pelanggan, dan dua rencana penanganan risiko." },
+  { step: "02", title: "Tiga agen bekerja", desc: "A1 mengumpulkan bukti, A2 menyusun model bisnis dan risiko, A3 menilai. Setiap langkah agen tampil langsung." },
+  { step: "03", title: "Skor dan kelas keputusan", desc: "Skor 3 dimensi, skor gabungan, dan kelas Layak, Layak Bersyarat, atau Tidak Layak, lengkap dengan sumbernya." },
 ];
+
+const FAKTA = ["3 agen", "10 indikator rubrik", "Skor 0–100", "Direktori dan Statistik OJK", "Sumber di setiap skor"];
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Nav */}
-      <nav className="sticky top-0 z-20 border-b border-white/[0.07] bg-base/70 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="text-[15px] font-semibold tracking-tight">
-            FeasiFlow <span className="gradient-text">AI</span>
-          </span>
-          <Link
-            href="/analyze"
-            className="rounded-lg bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 px-4 py-2 text-sm font-medium text-fg transition-colors duration-150 focus-ring"
-          >
-            Mulai Analisis
-          </Link>
+      <nav className="nav-kaca sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <span className="text-[15px] font-semibold tracking-tight">FeasiFlow AI</span>
+          <div className="flex items-center gap-7">
+            <a href="#cara-kerja" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Cara kerja</a>
+            <a href="#rubrik" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Rubrik</a>
+            <a href="#agen" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Agen</a>
+            <TombolUtama href="/analyze" teks="Mulai analisis" kecil />
+          </div>
         </div>
+        <span className="progres-gulir" aria-hidden="true" />
       </nav>
 
       {/* Hero */}
-      <section className="px-6 pt-24 pb-20">
-        <div className="max-w-3xl mx-auto text-center animate-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] text-muted mb-8">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75 animate-ping" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-400" />
-            </span>
-            9 Agen AI Otonom · Powered by Groq
+      <section className="relative overflow-hidden">
+        <MedanTitik className="absolute inset-0 h-full w-full" />
+        <div className="relative px-6 pt-20 pb-36 md:pt-28 md:pb-40">
+          <div className="max-w-3xl mx-auto text-center">
+            <JudulKata
+              redup="Nilai kelayakan"
+              utama="ide fintech lending."
+              className="text-[40px] leading-[1.04] md:text-[68px] md:leading-[1.02] font-medium tracking-[-0.035em]"
+            />
+            <p className="animate-fade-up [animation-delay:550ms] mt-6 text-[17px] text-muted max-w-md mx-auto leading-relaxed">
+              Tiga agen AI mencari bukti dari sumber resmi, menyusun model bisnis, lalu memberi skor dengan sumber di setiap angka.
+            </p>
+            <div className="animate-fade-up [animation-delay:700ms] mt-9 flex items-center justify-center">
+              <TombolUtama href="/analyze" teks="Mulai analisis" />
+            </div>
+            <p className="animate-fade-up [animation-delay:800ms] mt-5 text-[13px] text-faint">Tanpa registrasi. Hasil dalam 1 sampai 2 menit.</p>
           </div>
-          <h1 className="text-[40px] leading-[1.05] md:text-6xl md:leading-[1.05] font-semibold tracking-tight">
-            Validasi ide startup
+        </div>
+        <div className="marquee relative max-w-4xl mx-auto pb-10 text-sm text-faint">
+          <div>
+            {[0, 1].map((salinan) => (
+              <ul key={salinan} className="flex shrink-0 items-center" aria-hidden={salinan === 1}>
+                {FAKTA.map((f) => (
+                  <li key={f} className="flex items-center gap-10 pr-10 whitespace-nowrap">
+                    {f}
+                    <span className="h-px w-6 bg-black/20" aria-hidden="true" />
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contoh laporan */}
+      <section className="gelap px-6 py-24 md:py-28">
+        <MedanTitik className="medan opacity-40" warna="#ffffff" varian="pita" />
+        <div className="max-w-5xl mx-auto">
+          <Muncul>
+          <h2 className="text-3xl md:text-[40px] md:leading-[1.08] font-medium tracking-[-0.03em]">
+            <span className="text-white/45">Bukan sekadar angka.</span>
             <br />
-            <span className="gradient-text">dalam hitungan menit</span>
-          </h1>
-          <p className="mt-6 text-lg text-muted max-w-xl mx-auto leading-relaxed">
-            Analisis kelayakan startup Indonesia dengan sistem multi-agen AI —
-            Business Model Canvas, riset pasar, kompetitor, risiko, dan rekomendasi
-            strategis dengan skor 0–100.
+            Setiap skor membawa sumbernya.
+          </h2>
+          <p className="mt-4 max-w-xl text-[15px] text-white/60 leading-relaxed">
+            Contoh di bawah diambil dari satu analisis nyata: pinjaman modal kerja harian untuk pedagang pasar di Sulawesi Selatan.
           </p>
-          <div className="mt-9 flex items-center justify-center gap-3">
-            <Link
-              href="/analyze"
-              className="group inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 font-medium text-white shadow-glow transition-[transform,box-shadow] duration-150 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_10px_36px_-8px_rgba(99,102,241,0.5)] active:translate-y-px focus-ring"
-            >
-              Mulai Analisis Gratis
-              <ArrowRight size={17} className="transition-transform duration-150 group-hover:translate-x-0.5" />
-            </Link>
+          </Muncul>
+
+          <div className="mt-12 grid lg:grid-cols-[18rem_1fr] gap-5">
+            <Muncul tunda={100} className="tepi-cahaya tepi-gelap rounded-2xl bg-white text-fg p-7 flex flex-col">
+              <p className="text-sm text-muted">Skor gabungan</p>
+              <p className="mt-3 text-[84px] leading-none font-medium tracking-[-0.05em] tnum"><Hitung nilai={85} /></p>
+              <p className="mt-3 text-lg font-medium">Layak</p>
+              <dl className="mt-auto pt-8 space-y-3">
+                {DIMENSI.map((d) => (
+                  <div key={d.kode}>
+                    <div className="flex justify-between text-sm">
+                      <dt className="text-muted"><span className="font-mono text-fg">{d.kode}</span> {d.nama}</dt>
+                      <dd className="tnum font-medium">{d.teks}</dd>
+                    </div>
+                    <div className="mt-1.5 h-1.5 rounded-full bg-black/10 overflow-hidden">
+                      <div className="batang h-full bg-fg" style={{ ["--w" as string]: d.nilai + "%" }} />
+                    </div>
+                  </div>
+                ))}
+              </dl>
+            </Muncul>
+
+            <div className="kaca rounded-2xl divide-y divide-white/10 overflow-hidden">
+              {BUKTI.map((b, i) => (
+                <Muncul key={b.kode} tunda={180 + i * 120} className="sorot p-6 grid sm:grid-cols-[5.5rem_1fr] gap-x-5 gap-y-2">
+                  <div>
+                    <p className="font-mono text-sm text-white/50">{b.kode}</p>
+                    <p className="text-3xl font-medium tracking-[-0.03em] tnum">{b.skor}</p>
+                  </div>
+                  <div>
+                    <p className="text-[15px] font-medium">{b.judul}</p>
+                    <p className="mt-1.5 text-[15px] text-white/65 leading-relaxed">{b.bukti}</p>
+                    <p className="mt-2 text-[13px] text-white/45">Sumber: {b.sumber}</p>
+                  </div>
+                </Muncul>
+              ))}
+            </div>
           </div>
-          <p className="mt-4 text-[13px] text-faint">Gratis · Tanpa registrasi · Hasil di bawah 3 menit</p>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="px-6">
-        <div className="max-w-3xl mx-auto grid grid-cols-3 divide-x divide-white/[0.07] rounded-2xl border border-white/[0.07] bg-white/[0.015] py-7">
-          {[
-            { value: "9", label: "Agen Otonom" },
-            { value: "<3", label: "Menit Analisis" },
-            { value: "0–100", label: "Skor Kelayakan" },
-          ].map(({ value, label }) => (
-            <div key={label} className="text-center px-2">
-              <div className="text-3xl font-semibold tracking-tight tnum gradient-text">{value}</div>
-              <div className="mt-1 text-[13px] text-faint">{label}</div>
-            </div>
-          ))}
+      {/* Cara kerja */}
+      <section id="cara-kerja" className="latar-kisi px-6 py-24">
+        <div className="max-w-5xl mx-auto">
+          <Muncul>
+          <h2 className="text-3xl md:text-[40px] md:leading-[1.08] font-medium tracking-[-0.03em]">
+            <span className="nada-abu">Dari ide</span> ke laporan kelayakan.
+          </h2>
+          </Muncul>
+          <div className="relative mt-14 hidden md:grid grid-cols-3 gap-5" aria-hidden="true">
+            <div className="alur" style={{ top: 5 }} />
+            {STEPS.map(({ step }) => (
+              <span key={step} className="relative h-[11px] w-[11px] rounded-full border border-fg bg-[#f5f5f3]" />
+            ))}
+          </div>
+          <div className="mt-6 grid md:grid-cols-3 gap-5">
+            {STEPS.map(({ step, title, desc }, i) => (
+              <Muncul key={step} tunda={i * 120} className="kartu sorot glass-card rounded-2xl p-7">
+                <span className="block text-[56px] leading-none font-medium tracking-[-0.04em] text-black/15 tnum">{step}</span>
+                <h3 className="mt-6 text-lg font-medium tracking-tight">{title}</h3>
+                <p className="mt-2 text-[15px] text-muted leading-relaxed">{desc}</p>
+              </Muncul>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="px-6 py-24 max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-center">Cara kerja</h2>
-        <p className="mt-2 text-center text-muted">Tiga langkah, dari ide ke laporan kelayakan.</p>
-        <div className="mt-12 grid md:grid-cols-3 gap-4">
-          {STEPS.map(({ icon: Icon, step, title, desc }) => (
-            <div key={step} className="glass-card rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-5">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 border border-accent/20">
-                  <Icon size={18} className="text-accent-fg" aria-hidden="true" />
-                </span>
-                <span className="text-sm font-mono text-faint tnum">{step}</span>
-              </div>
-              <h3 className="text-[15px] font-semibold">{title}</h3>
-              <p className="mt-1.5 text-sm text-muted leading-relaxed">{desc}</p>
-            </div>
-          ))}
+      {/* Rubrik */}
+      <section id="rubrik" className="latar-kisi border-t border-line px-6 py-24">
+        <div className="max-w-5xl mx-auto">
+          <Muncul className="grid md:grid-cols-2 gap-x-12 gap-y-4 items-end">
+            <h2 className="text-3xl md:text-[40px] md:leading-[1.08] font-medium tracking-[-0.03em]">
+              <span className="nada-abu">10 indikator,</span>
+              <br />
+              tiga dimensi.
+            </h2>
+            <p className="text-[15px] text-muted leading-relaxed">
+              Tiap indikator bernilai 100, 50, atau 0. Skor gabungan adalah rerata bobot sama 10 indikator. Ide yang kegiatannya tidak diizinkan peraturan langsung dinyatakan Tidak Layak.
+            </p>
+          </Muncul>
+          <div className="mt-12 grid md:grid-cols-3 border-t border-fg">
+            {RUBRIK.map((d, i) => (
+              <Muncul key={d.kode} tunda={i * 120} className="pt-6 pb-2 md:px-6 md:first:pl-0 md:last:pr-0 md:border-l md:first:border-l-0 border-line">
+                <p className="font-mono text-sm text-faint">{d.kode}</p>
+                <h3 className="mt-1 text-lg font-medium tracking-tight">{d.nama}</h3>
+                <ol className="mt-5 space-y-4">
+                  {d.butir.map((x, i) => (
+                    <li key={x} className="flex gap-3 text-[15px] text-muted leading-relaxed">
+                      <span className="font-mono text-[13px] text-fg mt-0.5">{HURUF[i]}</span>
+                      {x}
+                    </li>
+                  ))}
+                </ol>
+              </Muncul>
+            ))}
+          </div>
+          <dl className="mt-12 grid sm:grid-cols-3 gap-5">
+            {KELAS.map((k, i) => (
+              <Muncul key={k.nama} tunda={i * 100} className="kartu sorot rounded-2xl border border-line bg-white px-6 py-5">
+                <dt className="text-sm text-muted">{k.syarat}</dt>
+                <dd className="mt-1 text-xl font-medium tracking-tight">{k.nama}</dd>
+              </Muncul>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* Agents */}
-      <section className="px-6 pb-24 max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-center">Sembilan agen, satu laporan</h2>
-        <div className="mt-10 grid sm:grid-cols-2 gap-3">
-          {AGENTS.map(({ name, desc }, i) => (
-            <div key={name} className="flex gap-4 rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
-              <span className="flex-shrink-0 h-9 w-9 rounded-lg bg-accent/10 border border-accent/20 text-accent-fg font-mono text-sm font-medium flex items-center justify-center tnum">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <p className="text-sm font-medium text-fg">{name}</p>
-                <p className="mt-0.5 text-[13px] text-muted leading-snug">{desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* Agen */}
+      <section id="agen" className="gelap px-6 py-24 md:py-28">
+        <MedanTitik className="medan opacity-40" warna="#ffffff" varian="pita" />
+        <div className="max-w-5xl mx-auto">
+          <Muncul>
+          <h2 className="text-3xl md:text-[40px] md:leading-[1.08] font-medium tracking-[-0.03em]">
+            <span className="text-white/45">Tiga agen,</span> satu pemeriksa.
+          </h2>
+          </Muncul>
+          <ol className="mt-14 grid md:grid-cols-3 gap-5">
+            {AGENTS.map(({ name, desc, alat }, i) => (
+              <li key={name} className="flex">
+              <Muncul tunda={i * 140} className="kaca kartu sorot rounded-2xl p-7 flex flex-col w-full hover:border-white/25">
+                <p className="font-mono text-sm text-white/45">Agen {i + 1}</p>
+                <h3 className="mt-2 text-2xl font-medium tracking-tight">{name}</h3>
+                <p className="mt-3 text-[15px] text-white/65 leading-relaxed">{desc}</p>
+                <p className="mt-auto pt-6 font-mono text-[12.5px] text-white/50 leading-relaxed">
+                  <span className="block border-t border-white/15 pt-4">{alat}</span>
+                </p>
+              </Muncul>
+              </li>
+            ))}
+          </ol>
+          <Muncul tunda={200} className="mt-5 rounded-2xl bg-white text-fg px-7 py-6 grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2">
+            <h3 className="text-lg font-medium tracking-tight">Pemeriksaan antarfase</h3>
+            <p className="text-[15px] text-muted leading-relaxed">
+              Di antara setiap agen ada kode biasa, bukan AI. Kode ini menolak angka yang tidak ada pada bukti tersimpan, data pasar yang terbit lebih dari 24 bulan lalu, dan keluaran yang formatnya salah, lalu mengembalikannya ke agen paling banyak 2 kali. Skor gabungan dan kelas keputusan juga dihitung kode.
+            </p>
+          </Muncul>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-6 py-20 text-center">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 border border-accent/20 mb-5">
-          <Shield className="h-5 w-5 text-accent-fg" aria-hidden="true" />
-        </span>
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Siap memvalidasi ide kamu?</h2>
-        <p className="mt-3 text-muted">Gratis. Tanpa registrasi. Laporan kelayakan dalam &lt;3 menit.</p>
-        <Link
-          href="/analyze"
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 font-medium text-white shadow-glow transition-[transform] duration-150 active:translate-y-px focus-ring"
-        >
-          Mulai sekarang <ArrowRight size={17} aria-hidden="true" />
-        </Link>
+      {/* Ajakan */}
+      <section className="relative overflow-hidden border-t border-line px-6 py-28 text-center">
+        <MedanTitik className="absolute inset-0 h-full w-full opacity-60" />
+        <Muncul className="relative">
+        <h2 className="text-3xl md:text-5xl font-medium tracking-[-0.03em]">
+          <span className="nada-abu">Siap menilai</span> ide Anda?
+        </h2>
+        <p className="mt-4 text-[15px] text-muted">Lima isian wajib. Hasil dalam 1 sampai 2 menit.</p>
+        <div className="mt-9 flex justify-center">
+          <TombolUtama href="/analyze" teks="Mulai sekarang" />
+        </div>
+        </Muncul>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/[0.07] py-10 text-center">
-        <p className="text-sm font-medium text-muted">FeasiFlow AI</p>
-        <p className="mt-1.5 text-[13px] text-faint">
-          Implementasi Sistem Agentic AI · Tugas Akhir TI, Universitas Atma Jaya Makassar, 2026
-        </p>
-        <p className="mt-0.5 text-[13px] text-faint">Vincentius Bryan Kwandou · 2361021</p>
+      <footer className="border-t border-line py-10 px-6">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[13px] text-faint">
+          <p className="font-medium text-fg">FeasiFlow AI</p>
+          <p>Tugas Akhir Teknik Informatika, Universitas Atma Jaya Makassar, 2026</p>
+          <p>Vincentius Bryan Kwandou · 2361021</p>
+        </div>
       </footer>
     </main>
   );

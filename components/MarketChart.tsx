@@ -3,12 +3,12 @@ import { toText, toTextList } from "@/lib/utils";
 
 export function MarketChart({ market }: { market: AnalysisResult["market"] }) {
   const maturityColors: Record<string, string> = {
-    Emerging: "text-blue-400",
-    Growing: "text-green-400",
-    Mature: "text-yellow-400",
-    Declining: "text-red-400",
+    Emerging: "text-blue-700",
+    Growing: "text-green-700",
+    Mature: "text-yellow-700",
+    Declining: "text-red-700",
   };
-  const maturityColor = maturityColors[market?.market_maturity ?? ""] ?? "text-gray-400";
+  const maturityColor = maturityColors[market?.market_maturity ?? ""] ?? "text-muted";
   const trends = toTextList(market?.market_trends);
   const drivers = toTextList(market?.key_market_drivers);
 
@@ -25,7 +25,7 @@ export function MarketChart({ market }: { market: AnalysisResult["market"] }) {
           { label: "SAM", value: market?.sam?.value, sub: market?.sam?.percentage_of_tam + " dari TAM", color: "from-purple-600 to-purple-400" },
           { label: "SOM", value: market?.som?.year_1_target, sub: "Target Tahun 1", color: "from-green-600 to-green-400" },
         ].map(({ label, value, sub, color }) => (
-          <div key={label} className={`rounded-xl p-4 border border-white/[0.08] bg-white/[0.03] text-center`}>
+          <div key={label} className={`rounded-xl p-4 border border-black/[0.08] bg-black/[0.03] text-center`}>
             <div className="text-xs text-faint mb-1">{label}</div>
             <div className="font-semibold text-sm text-fg leading-tight tnum">{toText(value) || "—"}</div>
             <div className="text-xs text-muted mt-1">{toText(sub)}</div>
@@ -35,11 +35,11 @@ export function MarketChart({ market }: { market: AnalysisResult["market"] }) {
 
       {/* Stats row */}
       <div className="flex gap-4 mb-6">
-        <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
+        <div className="flex-1 bg-black/[0.03] border border-black/[0.06] rounded-xl p-3 text-center">
           <div className="text-xs text-faint">Growth Rate</div>
-          <div className="text-green-400 font-bold text-sm mt-1">{toText(market?.growth_rate)}</div>
+          <div className="text-green-700 font-bold text-sm mt-1">{toText(market?.growth_rate)}</div>
         </div>
-        <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
+        <div className="flex-1 bg-black/[0.03] border border-black/[0.06] rounded-xl p-3 text-center">
           <div className="text-xs text-faint">Market Stage</div>
           <div className={`font-bold text-sm mt-1 ${maturityColor}`}>{toText(market?.market_maturity)}</div>
         </div>
@@ -71,7 +71,7 @@ export function MarketChart({ market }: { market: AnalysisResult["market"] }) {
 
       {market?.regulatory_environment && (
         <div className="mt-4 p-3 bg-yellow-500/5 border border-yellow-500/20 rounded-xl">
-          <p className="text-xs text-yellow-400 font-semibold mb-1">Regulasi</p>
+          <p className="text-xs text-yellow-700 font-semibold mb-1">Regulasi</p>
           <p className="text-xs text-muted">{toText(market.regulatory_environment)}</p>
         </div>
       )}

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "CONTOH-H1",
+    "label": "hipotetis",
+    "harap": "Tidak Layak",
+    "ide": {
+      "produk": "Pinjaman kripto berbasis kontrak pintar",
+      "segmen": "Pemilik aset kripto",
+      "wilayah": "DKI Jakarta",
+      "pendapatan": "Biaya protokol per transaksi",
+      "deskripsi": "Platform pinjam-meminjam aset kripto lewat kontrak pintar di blockchain publik tanpa izin OJK, dengan agunan token."
+    }
+  },
+  {
+    "id": "CONTOH-H2",
+    "label": "hipotetis",
+    "ide": {
+      "produk": "Pinjaman modal kerja harian",
+      "segmen": "Pedagang pasar tradisional",
+      "wilayah": "Sulawesi Selatan",
+      "pendapatan": "Biaya layanan per pencairan",
+      "biaya": "Komisi agen, teknologi, penagihan",
+      "rencana_gagal_bayar": "Penilaian kelayakan dari riwayat setoran dan penagihan harian oleh agen",
+      "rencana_data": "Data dienkripsi dan hanya dipakai dengan persetujuan peminjam",
+      "deskripsi": "Platform pendanaan bersama yang mempertemukan pemberi dana dengan pedagang pasar, tenor 30 hari, pencairan lewat agen lapangan."
+    }
+  }
+]

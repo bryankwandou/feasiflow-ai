@@ -21,14 +21,14 @@ function RunwayGauge({ months }: { months: number }) {
   const pct = Math.min(100, (months / 18) * 100);
   const color = months >= 12 ? "bg-green-500" : months >= 6 ? "bg-yellow-500" : "bg-red-500";
   const label = months >= 12 ? "Ideal" : months >= 6 ? "Cukup" : "Kritis";
-  const textColor = months >= 12 ? "text-green-400" : months >= 6 ? "text-yellow-400" : "text-red-400";
+  const textColor = months >= 12 ? "text-green-700" : months >= 6 ? "text-yellow-700" : "text-red-700";
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
         <span className="text-xs text-muted">Runway</span>
         <span className={`text-xs font-bold ${textColor}`}>{months} bulan — {label}</span>
       </div>
-      <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden">
+      <div className="h-2 bg-black/[0.08] rounded-full overflow-hidden">
         <div className={`h-full ${color} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -37,7 +37,7 @@ function RunwayGauge({ months }: { months: number }) {
 
 export function FinancialPanel({ financial }: Props) {
   const score = toNum(financial.financial_sustainability_score);
-  const scoreColor = score >= 70 ? "text-green-400" : score >= 50 ? "text-yellow-400" : "text-red-400";
+  const scoreColor = score >= 70 ? "text-green-700" : score >= 50 ? "text-yellow-700" : "text-red-700";
   const runway = financial.runway_projection;
   const fixedCosts = toTextList(financial.cost_structure?.fixed_costs);
   const useOfFunds = toTextList(financial.funding_recommendation?.use_of_funds);
@@ -62,7 +62,7 @@ export function FinancialPanel({ financial }: Props) {
 
       {/* Runway Projection */}
       {runway && (
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 mb-5">
+        <div className="bg-black/[0.03] border border-black/[0.06] rounded-xl p-4 mb-5">
           <p className="text-[11px] font-semibold text-faint uppercase tracking-wider mb-3">Proyeksi Runway</p>
           <div className="grid grid-cols-3 gap-3 mb-3">
             <div className="text-center">
@@ -73,7 +73,7 @@ export function FinancialPanel({ financial }: Props) {
             </div>
             <div className="text-center">
               <p className="text-xs text-faint">Burn Rate/Bulan</p>
-              <p className="text-sm font-bold text-orange-300">{toText(runway.estimated_monthly_burn) || "—"}</p>
+              <p className="text-sm font-bold text-orange-800">{toText(runway.estimated_monthly_burn) || "—"}</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-faint">Assessment</p>
@@ -95,9 +95,9 @@ export function FinancialPanel({ financial }: Props) {
               { label: "Bulan 12", value: financial.revenue_projection.month_12 },
               { label: "Break Even", value: financial.revenue_projection.break_even_month },
             ].map(({ label, value }) => (
-              <div key={label} className="bg-white/[0.03] border border-white/[0.05] rounded-lg p-3 text-center">
+              <div key={label} className="bg-black/[0.03] border border-black/[0.05] rounded-lg p-3 text-center">
                 <p className="text-xs text-faint mb-1">{label}</p>
-                <p className="text-xs font-bold text-green-300">{toText(value) || "—"}</p>
+                <p className="text-xs font-bold text-green-800">{toText(value) || "—"}</p>
               </div>
             ))}
           </div>
@@ -121,11 +121,11 @@ export function FinancialPanel({ financial }: Props) {
                 <div key={key}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted">{cfg.label}</span>
-                    <span className={`text-xs font-bold ${dimScore >= 70 ? "text-green-400" : dimScore >= 50 ? "text-yellow-400" : "text-red-400"}`}>
+                    <span className={`text-xs font-bold ${dimScore >= 70 ? "text-green-700" : dimScore >= 50 ? "text-yellow-700" : "text-red-700"}`}>
                       {dimScore}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-black/[0.08] rounded-full overflow-hidden">
                     <div className={`h-full ${barColor} rounded-full`} style={{ width: `${dimScore}%` }} />
                   </div>
                   {dim.reasoning && <p className="text-xs text-faint mt-0.5">{toText(dim.reasoning)}</p>}
@@ -139,7 +139,7 @@ export function FinancialPanel({ financial }: Props) {
       <div className="grid md:grid-cols-2 gap-4 mb-4">
         {/* Cost Structure */}
         {financial.cost_structure && (
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
+          <div className="bg-black/[0.03] border border-black/[0.06] rounded-xl p-4">
             <p className="text-[11px] font-semibold text-faint mb-2">Struktur Biaya</p>
             {fixedCosts.length > 0 && (
               <>
@@ -150,7 +150,7 @@ export function FinancialPanel({ financial }: Props) {
               </>
             )}
             {financial.cost_structure.total_estimated_monthly_burn && (
-              <p className="text-xs font-bold text-orange-300 mt-2 pt-2 border-t border-gray-700/50">
+              <p className="text-xs font-bold text-orange-800 mt-2 pt-2 border-t border-black/10">
                 Total: {toText(financial.cost_structure.total_estimated_monthly_burn)}
               </p>
             )}
@@ -163,22 +163,22 @@ export function FinancialPanel({ financial }: Props) {
             <p className="text-[11px] font-semibold text-accent-fg mb-2">Rekomendasi Pendanaan</p>
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between">
-                <span className="text-gray-500">Jenis:</span>
+                <span className="text-faint">Jenis:</span>
                 <span className="text-fg">{toText(financial.funding_recommendation.investor_type)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Jumlah:</span>
-                <span className="text-green-300 font-bold">{toText(financial.funding_recommendation.recommended_amount)}</span>
+                <span className="text-faint">Jumlah:</span>
+                <span className="text-green-800 font-bold">{toText(financial.funding_recommendation.recommended_amount)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Timing:</span>
+                <span className="text-faint">Timing:</span>
                 <span className="text-muted">{toText(financial.funding_recommendation.next_fundraise_timing)}</span>
               </div>
               {useOfFunds.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-gray-700/50">
-                  <p className="text-gray-500 mb-1">Alokasi dana:</p>
+                <div className="mt-2 pt-2 border-t border-black/10">
+                  <p className="text-faint mb-1">Alokasi dana:</p>
                   {useOfFunds.map((u, i) => (
-                    <p key={i} className="text-gray-400">• {u}</p>
+                    <p key={i} className="text-muted">• {u}</p>
                   ))}
                 </div>
               )}
@@ -190,10 +190,10 @@ export function FinancialPanel({ financial }: Props) {
       {/* Financial Risks */}
       {financialRisks.length > 0 && (
         <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-4">
-          <p className="text-xs font-bold text-red-400 mb-2">Risiko Finansial</p>
+          <p className="text-xs font-bold text-red-700 mb-2">Risiko Finansial</p>
           {financialRisks.map((r, i) => (
             <p key={i} className="text-xs text-muted mb-1 flex gap-1.5">
-              <span className="text-red-400 shrink-0">!</span>{r}
+              <span className="text-red-700 shrink-0">!</span>{r}
             </p>
           ))}
         </div>
@@ -201,7 +201,7 @@ export function FinancialPanel({ financial }: Props) {
 
       {/* Summary */}
       {financial.financial_summary && (
-        <p className="text-sm text-muted border-t border-white/[0.06] pt-4">{toText(financial.financial_summary)}</p>
+        <p className="text-sm text-muted border-t border-black/[0.06] pt-4">{toText(financial.financial_summary)}</p>
       )}
     </div>
   );

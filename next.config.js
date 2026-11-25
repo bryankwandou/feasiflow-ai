@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: { serverComponentsExternalPackages: [] },
-  async rewrites() {
-    return [
-      {
-        source: "/python/:path*",
-        destination: `${process.env.PYTHON_BACKEND_URL || "http://localhost:8000"}/:path*`,
-      },
-    ];
+  experimental: {
+    serverComponentsExternalPackages: ["playwright-core", "@sparticuz/chromium", "unpdf"],
+    outputFileTracingIncludes: {
+      "/api/run": ["./node_modules/@sparticuz/chromium/bin/**"],
+      "/api/cek": ["./node_modules/@sparticuz/chromium/bin/**"],
+    },
   },
 };
 

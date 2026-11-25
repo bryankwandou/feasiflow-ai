@@ -7,14 +7,16 @@
     "build": "next build",
     "start": "next start",
     "type-check": "tsc --noEmit",
-    "dev:python": "uvicorn agents.main:app --reload --port 8000",
-    "dev:full": "concurrently \"npm run dev\" \"npm run dev:python\""
+    "test:pemeriksa": "npx tsx tests/pemeriksa-isian.test.ts",
+    "test:agentik": "npx tsx tests/agentik.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@neondatabase/serverless": "^0.10.4",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@sparticuz/chromium": "^131.0.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "concurrently": "^8.2.2",
@@ -23,11 +25,13 @@
     "lucide-react": "^0.408.0",
     "nanoid": "^5.0.7",
     "next": "14.2.5",
+    "playwright-core": "^1.49.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.1",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.4.0",
+    "unpdf": "^0.12.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {

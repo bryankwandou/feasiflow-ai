@@ -3,16 +3,7 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "env": {
-    "PYTHON_BACKEND_URL": "https://feasiflow-backend.railway.app"
-  },
-  "headers": [
-    {
-      "source": "/api/stream/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-transform" },
-        { "key": "X-Accel-Buffering", "value": "no" }
-      ]
-    }
+  "regions": [
+    "sin1"
   ]
 }

@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0b0f;
-  --bg-elev: #111319;
+  --bg: #f5f5f3;
+  --bg-elev: #ffffff;
 }
 
 html {
@@ -14,13 +14,8 @@ html {
 }
 
 body {
-  color: #e7e9ee;
+  color: #111111;
   background-color: var(--bg);
-  /* Subtle ambient glow at the top — adds depth without noise. */
-  background-image:
-    radial-gradient(60rem 30rem at 50% -10rem, rgba(99, 102, 241, 0.12), transparent 70%),
-    radial-gradient(40rem 24rem at 90% 0%, rgba(56, 189, 248, 0.05), transparent 60%);
-  background-attachment: fixed;
   font-feature-settings: "cv05", "ss01";
 }
 
@@ -30,33 +25,27 @@ body {
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #262a36; border-radius: 6px; border: 2px solid var(--bg); }
-::-webkit-scrollbar-thumb:hover { background: #323848; }
+::-webkit-scrollbar-thumb { background: #cfcfca; border-radius: 6px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #b5b5af; }
 
-/* Gradient text utility — refined indigo→sky */
-.gradient-text {
-  background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 45%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* Kata kedua pada judul dua nada: abu lalu hitam. */
+.gradient-text { color: #111111; }
+.nada-abu { color: #9a9a94; }
 
 /* Card — flat, hairline border, soft depth. One treatment, used everywhere. */
 .glass-card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.012)),
-    #111319;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.03) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.7);
+  background: #ffffff;
+  border: 1px solid #e3e3df;
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04), 0 12px 32px -20px rgba(17, 17, 17, 0.18);
 }
 
 /* Hairline divider helper */
-.hairline { border-color: rgba(255, 255, 255, 0.07); }
+.hairline { border-color: rgba(17, 17, 17, 0.08); }
 
 /* Focus ring — brand accent, consistent everywhere */
 .focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(99, 102, 241, 0.6);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px rgba(17, 17, 17, 0.55);
 }
 
 /* Pulse animation for running agents */
@@ -75,3 +64,234 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Gerak masuk saat terlihat (komponen Muncul). */
+.muncul {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.9s ease-out, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.muncul.tampak { opacity: 1; transform: none; }
+
+/* Batang skor tumbuh dari nol saat induknya terlihat. */
+.batang { width: 0; transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s; }
+.tampak .batang { width: var(--w); }
+
+/* Kartu terangkat halus saat disorot. */
+.kartu { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+.kartu:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(17, 17, 17, 0.05), 0 22px 44px -22px rgba(17, 17, 17, 0.3); }
+
+/* Bagian gelap: cahaya lembut yang bergeser pelan, dan kartu kaca. */
+.gelap { position: relative; isolation: isolate; overflow: hidden; background: #121212; color: #ffffff; }
+.gelap::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: -1;
+  background:
+    radial-gradient(38% 34% at 22% 30%, rgba(255, 255, 255, 0.11), transparent 70%),
+    radial-gradient(32% 30% at 78% 68%, rgba(255, 255, 255, 0.07), transparent 70%);
+  animation: geser 22s ease-in-out infinite alternate;
+}
+@keyframes geser {
+  from { transform: translate3d(-4%, -3%, 0) scale(1); }
+  to { transform: translate3d(5%, 4%, 0) scale(1.12); }
+}
+.kaca {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+/* ── Gerak tombol dan elemen (referensi studio.motionsites.ai) ───────────── */
+:root { --lentur: cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Tombol utama: pil hitam dengan cahaya pelangi lembut di bawahnya (Kindred). */
+.tombol-utama {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 9999px;
+  color: #ffffff;
+  font-weight: 500;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tombol-utama::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: #111111;
+  transition: background-color 0.2s;
+}
+.tombol-utama::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  left: 14%;
+  right: 14%;
+  bottom: -9px;
+  height: 22px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #86efac, #7dd3fc, #a5b4fc, #f0abfc, #fda4af, #fde68a, #86efac);
+  background-size: 200% 100%;
+  filter: blur(13px);
+  opacity: 0.7;
+  animation: pelangi 7s linear infinite;
+  transition: opacity 0.35s, transform 0.45s var(--lentur);
+}
+.tombol-utama:hover::before { opacity: 1; transform: scaleX(1.15) translateY(3px); }
+.tombol-utama:hover::after { background: #000000; }
+.tombol-utama:active { transform: scale(0.97); }
+.tombol-utama[disabled] { opacity: 0.6; pointer-events: none; }
+@keyframes pelangi { to { background-position: 200% 0; } }
+
+/* Versi terang untuk latar gelap. */
+.tombol-terang { color: #111111; }
+.tombol-terang::after { background: #ffffff; }
+.tombol-terang:hover::after { background: #f1f1ee; }
+
+/* Label bergulir: teks naik keluar, salinannya naik masuk. */
+.gulir { display: inline-block; overflow: hidden; height: 1.3em; line-height: 1.3em; vertical-align: bottom; }
+.gulir > span { display: block; transition: transform 0.5s var(--lentur); }
+.gulir > span::after { content: attr(data-teks); display: block; }
+:is(a, button):hover .gulir > span { transform: translateY(-50%); }
+
+/* Lingkaran panah: panah lama keluar ke kanan, panah baru masuk dari kiri (VeilGuard). */
+.panah { position: relative; display: grid; place-items: center; width: 2rem; height: 2rem; flex-shrink: 0; border-radius: 9999px; overflow: hidden; background: #ffffff; color: #111111; transition: transform 0.45s var(--lentur); }
+.tombol-terang .panah { background: #111111; color: #ffffff; }
+.panah > svg { transition: transform 0.5s var(--lentur); }
+.panah > svg + svg { position: absolute; transform: translateX(-180%); }
+:is(a, button):hover .panah > svg:first-child { transform: translateX(180%); }
+:is(a, button):hover .panah > svg + svg { transform: none; }
+:is(a, button):hover .panah { transform: rotate(-45deg); }
+
+/* Sorot cahaya yang mengikuti kursor di kartu (posisi diisi komponen PenyorotKartu). */
+.sorot { position: relative; }
+.sorot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+  background: radial-gradient(380px circle at var(--x, 50%) var(--y, 50%), rgba(17, 17, 17, 0.055), transparent 50%);
+}
+.gelap .sorot::after, .sorot.gelap::after, .kaca.sorot::after {
+  background: radial-gradient(380px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.11), transparent 50%);
+}
+.sorot:hover::after { opacity: 1; }
+
+/* Judul muncul kata demi kata dari buram. */
+.kata { display: inline-block; opacity: 0; filter: blur(10px); transform: translateY(14px); animation: kata-masuk 1s var(--lentur) forwards; animation-delay: calc(var(--i, 0) * 75ms + 120ms); }
+@keyframes kata-masuk { to { opacity: 1; filter: blur(0); transform: none; } }
+
+/* Berkas cahaya yang mengelilingi tepi panel (Zapline). */
+@property --sudut { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.tepi-cahaya { position: relative; }
+.tepi-cahaya::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(from var(--sudut), transparent 0 70%, rgba(255, 255, 255, 0.85) 86%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: putar 6s linear infinite;
+}
+.tepi-gelap::after { background: conic-gradient(from var(--sudut), transparent 0 70%, rgba(17, 17, 17, 0.55) 86%, transparent 100%); }
+@keyframes putar { to { --sudut: 360deg; } }
+
+/* Garis bawah tautan yang tumbuh dari kiri. */
+.garis { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; padding-bottom: 2px; transition: background-size 0.4s var(--lentur), color 0.15s; }
+.garis:hover { background-size: 100% 1px; }
+
+/* Penanda pilihan segmen yang bergeser. */
+.penanda { transition: transform 0.45s var(--lentur); }
+
+/* Tombol sekunder bergaris. */
+.tombol-garis { position: relative; overflow: hidden; isolation: isolate; transition: color 0.3s, border-color 0.3s, transform 0.2s; }
+.tombol-garis::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #111111; transform: translateY(101%); border-radius: inherit; transition: transform 0.45s var(--lentur); }
+.tombol-garis:hover { color: #ffffff; }
+.tombol-garis:hover::before { transform: none; }
+.tombol-garis:active { transform: scale(0.97); }
+
+/* Bagian redup judul di atas latar gelap. */
+.judul-gelap .nada-abu { color: rgba(255, 255, 255, 0.45); }
+
+/* ── Latar ───────────────────────────────────────────────────────────── */
+/* Butiran halus di seluruh halaman supaya warna rata tidak terasa datar. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Kisi titik samar yang memudar ke tepi, untuk bagian terang. */
+.latar-kisi { position: relative; isolation: isolate; }
+.latar-kisi::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(17, 17, 17, 0.16) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+}
+
+/* Lapisan medan titik di bagian gelap ditaruh di belakang isi. */
+.gelap > .medan { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
+
+/* ── Navigasi ────────────────────────────────────────────────────────── */
+.nav-kaca {
+  background: rgba(245, 245, 243, 0.9);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+}
+/* Garis progres gulir (didukung peramban yang mengenal scroll timeline). */
+.progres-gulir { position: absolute; left: 0; right: 0; bottom: -1px; height: 1.5px; background: #111111; transform-origin: 0 50%; transform: scaleX(0); }
+@supports (animation-timeline: scroll()) {
+  .progres-gulir { animation: progres linear both; animation-timeline: scroll(root); }
+}
+@keyframes progres { to { transform: scaleX(1); } }
+
+/* ── Marquee fakta ───────────────────────────────────────────────────── */
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.marquee > div { display: flex; width: max-content; animation: jalan 32s linear infinite; }
+.marquee:hover > div { animation-play-state: paused; }
+@keyframes jalan { to { transform: translateX(-50%); } }
+
+/* ── Garis alur antar langkah ────────────────────────────────────────── */
+.alur { position: absolute; left: 0; right: 0; top: 52px; height: 1px; background: rgba(17, 17, 17, 0.1); overflow: hidden; }
+.alur::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, #111111, transparent);
+  animation: alir 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes alir { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+
+/* Saat pengguna mengetik di isian, animasi latar dijeda agar ketikan tidak tersendat. */
+.mengetik .gelap::before,
+.mengetik .tombol-utama::before,
+.mengetik .tepi-cahaya::after,
+.mengetik .alur::after { animation-play-state: paused; }

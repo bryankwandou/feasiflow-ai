@@ -14,7 +14,7 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-base font-semibold">Analisis Kompetitor</h2>
         <div className="text-right">
-          <span className="text-2xl font-semibold text-sky-400 tnum">
+          <span className="text-2xl font-semibold text-sky-700 tnum">
             {toNum(competitor?.competitive_advantage_score)}<span className="text-sm text-faint">/100</span>
           </span>
         </div>
@@ -26,15 +26,15 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
           <span className="text-xs text-faint">Intensitas Kompetisi:</span>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
             toText(competitor.competition_intensity).toLowerCase().includes("sangat") || toText(competitor.competition_intensity).toLowerCase().includes("very")
-              ? "bg-red-500/20 text-red-400 border-red-500/30"
-              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+              ? "bg-red-500/20 text-red-700 border-red-500/30"
+              : "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
           }`}>{toText(competitor.competition_intensity)}</span>
         </div>
       )}
 
       {/* Our edge */}
       <div className="mb-5 p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
-        <p className="text-xs font-bold text-green-400 mb-1">Diferensiasi Kita</p>
+        <p className="text-xs font-bold text-green-700 mb-1">Diferensiasi Kita</p>
         <p className="text-sm text-muted">{toText(competitor?.our_differentiation)}</p>
         {competitor?.competitive_moat && (
           <p className="text-xs text-faint mt-2">Moat: {toText(competitor.competitive_moat)}</p>
@@ -55,7 +55,7 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
           <h3 className="text-sm font-semibold text-fg mb-3">Kompetitor Langsung</h3>
           <div className="space-y-4 mb-5">
             {competitors.map((comp: any, i: number) => (
-              <div key={i} className="border border-white/[0.08] rounded-xl p-4">
+              <div key={i} className="border border-black/[0.08] rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <span className="font-semibold text-fg">{toText(comp.name)}</span>
@@ -64,24 +64,24 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
                     )}
                   </div>
                   {comp.estimated_market_share && (
-                    <span className="text-xs text-gray-400">{toText(comp.estimated_market_share)}</span>
+                    <span className="text-xs text-muted">{toText(comp.estimated_market_share)}</span>
                   )}
                 </div>
                 <p className="text-xs text-muted mb-3">{toText(comp.description)}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-green-400 font-semibold mb-1">Kekuatan</p>
+                    <p className="text-xs text-green-700 font-semibold mb-1">Kekuatan</p>
                     {toTextList(comp.strengths).map((s, si) => (
                       <div key={si} className="text-xs text-muted flex gap-1">
-                        <span className="text-green-400">+</span>{s}
+                        <span className="text-green-700">+</span>{s}
                       </div>
                     ))}
                   </div>
                   <div>
-                    <p className="text-xs text-red-400 font-semibold mb-1">Kelemahan</p>
+                    <p className="text-xs text-red-700 font-semibold mb-1">Kelemahan</p>
                     {toTextList(comp.weaknesses).map((w, wi) => (
                       <div key={wi} className="text-xs text-muted flex gap-1">
-                        <span className="text-red-400">-</span>{w}
+                        <span className="text-red-700">-</span>{w}
                       </div>
                     ))}
                   </div>
@@ -98,7 +98,7 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
           <h3 className="text-sm font-semibold text-fg mb-2">Celah Pasar</h3>
           <div className="flex flex-wrap gap-2">
             {marketGaps.map((gap, i) => (
-              <span key={i} className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-xs text-green-300">
+              <span key={i} className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-xs text-green-800">
                 {gap}
               </span>
             ))}
@@ -114,7 +114,7 @@ export function CompetitorTable({ competitor }: { competitor: AnalysisResult["co
           </h3>
           <div className="flex flex-wrap gap-2">
             {barriers.map((b, i) => (
-              <span key={i} className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-xs text-orange-300">
+              <span key={i} className="px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-xs text-orange-800">
                 {b}
               </span>
             ))}

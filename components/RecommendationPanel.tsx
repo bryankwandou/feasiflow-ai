@@ -20,10 +20,10 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
   const goNogo = rec.go_nogo_recommendation ?? "CONDITIONAL GO";
   const goColor =
     goNogo === "GO"
-      ? "bg-green-500/20 text-green-400 border-green-500/30"
+      ? "bg-green-500/20 text-green-700 border-green-500/30"
       : goNogo === "NO-GO"
-      ? "bg-red-500/20 text-red-400 border-red-500/30"
-      : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      ? "bg-red-500/20 text-red-700 border-red-500/30"
+      : "bg-yellow-500/20 text-yellow-700 border-yellow-500/30";
   const goIcon = goNogo === "GO" ? "" : goNogo === "NO-GO" ? "" : "";
 
   return (
@@ -37,7 +37,7 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
 
       {/* Go/No-Go Reasoning */}
       {rec.go_nogo_reasoning && (
-        <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+        <div className="p-4 bg-black/[0.03] rounded-xl border border-black/[0.06]">
           <p className="text-[11px] font-semibold text-faint mb-1">Alasan Keputusan</p>
           <p className="text-sm text-fg">{toText(rec.go_nogo_reasoning)}</p>
         </div>
@@ -57,11 +57,11 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
       <div className="grid md:grid-cols-2 gap-4">
         {strengths.length > 0 && (
           <div className="p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
-            <p className="text-xs font-bold text-green-400 mb-3">Kekuatan Utama</p>
+            <p className="text-xs font-bold text-green-700 mb-3">Kekuatan Utama</p>
             <div className="space-y-2">
               {strengths.map((s, i) => (
-                <div key={i} className="flex gap-2 text-xs text-gray-300">
-                  <span className="text-green-400 shrink-0"></span>{s}
+                <div key={i} className="flex gap-2 text-xs text-fg">
+                  <span className="text-green-700 shrink-0"></span>{s}
                 </div>
               ))}
             </div>
@@ -69,11 +69,11 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
         )}
         {challenges.length > 0 && (
           <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
-            <p className="text-xs font-bold text-red-400 mb-3">Tantangan Kritis</p>
+            <p className="text-xs font-bold text-red-700 mb-3">Tantangan Kritis</p>
             <div className="space-y-2">
               {challenges.map((c, i) => (
-                <div key={i} className="flex gap-2 text-xs text-gray-300">
-                  <span className="text-red-400 shrink-0">!</span>{c}
+                <div key={i} className="flex gap-2 text-xs text-fg">
+                  <span className="text-red-700 shrink-0">!</span>{c}
                 </div>
               ))}
             </div>
@@ -90,13 +90,13 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
               const isHigh = r.toLowerCase().includes("kritis") || r.toLowerCase().includes("prioritas 1");
               const isMed = r.toLowerCase().includes("prioritas 2") || r.toLowerCase().includes("prioritas 3");
               const badgeCls = isHigh
-                ? "bg-red-500/20 text-red-400 border-red-500/30"
+                ? "bg-red-500/20 text-red-700 border-red-500/30"
                 : isMed
-                ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                ? "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
                 : "bg-accent/10 text-accent-fg border-accent/20";
               const badgeLabel = isHigh ? "KRITIS" : isMed ? "TINGGI" : "SEDANG";
               return (
-                <div key={i} className="border border-white/[0.06] rounded-xl p-4 bg-white/[0.02]">
+                <div key={i} className="border border-black/[0.06] rounded-xl p-4 bg-black/[0.02]">
                   <div className="flex items-start gap-3">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border shrink-0 mt-0.5 ${badgeCls}`}>
                       {badgeLabel}
@@ -113,11 +113,11 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
       {/* Next Steps */}
       {nextSteps.length > 0 && (
         <div className="p-4 bg-violet-500/[0.04] border border-violet-500/20 rounded-xl">
-          <p className="text-sm font-semibold text-violet-400 mb-3">Langkah Berikutnya</p>
+          <p className="text-sm font-semibold text-violet-700 mb-3">Langkah Berikutnya</p>
           <div className="space-y-2">
             {nextSteps.map((step, i) => (
               <div key={i} className="flex gap-2 text-sm text-muted">
-                <span className="text-violet-400 font-semibold shrink-0">{i + 1}.</span>{step}
+                <span className="text-violet-700 font-semibold shrink-0">{i + 1}.</span>{step}
               </div>
             ))}
           </div>
@@ -127,10 +127,10 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
       {/* Key Success Factors */}
       {successFactors.length > 0 && (
         <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
-          <p className="text-xs font-bold text-amber-400 mb-2">Faktor Kritis Keberhasilan</p>
+          <p className="text-xs font-bold text-amber-700 mb-2">Faktor Kritis Keberhasilan</p>
           {successFactors.map((f, i) => (
-            <p key={i} className="text-xs text-gray-300 mb-1 flex gap-2">
-              <span className="text-amber-400 shrink-0"></span>{f}
+            <p key={i} className="text-xs text-fg mb-1 flex gap-2">
+              <span className="text-amber-700 shrink-0"></span>{f}
             </p>
           ))}
         </div>
@@ -139,14 +139,14 @@ export function RecommendationPanel({ rec }: { rec: AnalysisResult["recommendati
       {/* Red Flags */}
       {toText(rec.red_flags_summary) && toText(rec.red_flags_summary) !== "Tidak ada red flag kritis yang teridentifikasi." && (
         <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
-          <p className="text-xs font-bold text-red-400 mb-2">Red Flag Tersisa</p>
-          <p className="text-xs text-gray-300">{toText(rec.red_flags_summary)}</p>
+          <p className="text-xs font-bold text-red-700 mb-2">Red Flag Tersisa</p>
+          <p className="text-xs text-fg">{toText(rec.red_flags_summary)}</p>
         </div>
       )}
 
       {/* Comparable Successes */}
       {toText(rec.comparable_successes) && (
-        <div className="text-xs text-gray-500 border-t border-white/[0.06] pt-4">
+        <div className="text-xs text-faint border-t border-black/[0.06] pt-4">
           <span className="text-muted font-medium">Benchmark: </span>{toText(rec.comparable_successes)}
         </div>
       )}

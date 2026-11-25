@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
+import { ambil } from "@/lib/tiga-agen/simpan";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: { sessionId: string } }
-) {
-  const { sessionId } = params;
-  const pythonUrl = process.env.PYTHON_BACKEND_URL ?? "http://localhost:8000";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-  try {
-    const res = await fetch(`${pythonUrl}/result/${sessionId}`);
-    const data = await res.json();
-    return NextResponse.json(data);
-  } catch (error) {
-    return NextResponse.json({ error: "Result fetch failed" }, { status: 500 });
-  }
+// Status dan hasil tersimpan sebuah analisis, supaya halaman hasil tidak
+// menjalankan ulang analisis saat dimuat ulang.
+export async function GET(_request: Request, { params }: { params: { sessionId: string } }) {
+  const b = await ambil(params.sessionId.slice(0, 80));
+  if (!b) return NextResponse.json({ status: "tidak_ada" });
+  if (b.status === "berjalan" && b.umur_detik > 360) return NextResponse.json({ status: "gagal", galat: "Analisis terhenti sebelum selesai." });
+  return NextResponse.json({ status: b.status, hasil: b.hasil, galat: b.galat, ide: b.ide });
 }

@@ -16,14 +16,14 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
           <p className="font-medium text-fg">{toText(b.value_propositions?.core_value)}</p>
           <p className="text-faint text-xs">Differentiator: {toText(b.value_propositions?.differentiator)}</p>
           {toTextList(b.value_propositions?.pain_relievers).map((p, i) => (
-            <div key={i} className="flex gap-2"><span className="text-red-400">•</span>{p}</div>
+            <div key={i} className="flex gap-2"><span className="text-red-700">•</span>{p}</div>
           ))}
           {toTextList(b.value_propositions?.gain_creators).map((g, i) => (
-            <div key={i} className="flex gap-2"><span className="text-green-400">+</span>{g}</div>
+            <div key={i} className="flex gap-2"><span className="text-green-700">+</span>{g}</div>
           ))}
           {/* Fallback: show value_proposition_strength if no detailed data */}
           {!b.value_propositions?.core_value && bmc.value_proposition_strength && (
-            <p className="text-gray-300">{toText(bmc.value_proposition_strength)}</p>
+            <p className="text-fg">{toText(bmc.value_proposition_strength)}</p>
           )}
         </div>
       ),
@@ -37,7 +37,7 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
           <p className="text-muted text-xs">{toText(b.customer_segments?.customer_profile)}</p>
           <p className="text-accent-fg text-xs">Target: {toText(b.customer_segments?.estimated_size)}</p>
           {toTextList(b.customer_segments?.secondary_segments).map((s, i) => (
-            <div key={i} className="flex gap-2 text-xs"><span className="text-gray-500">›</span>{s}</div>
+            <div key={i} className="flex gap-2 text-xs"><span className="text-faint">›</span>{s}</div>
           ))}
         </div>
       ),
@@ -50,15 +50,15 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
           <p className="font-medium text-fg">{toText(b.revenue_streams?.primary_revenue)}</p>
           <p className="text-muted text-xs">{toText(b.revenue_streams?.revenue_model)}</p>
           <p className="text-muted text-xs">{toText(b.revenue_streams?.pricing_strategy)}</p>
-          <p className="text-green-400 font-semibold text-xs">
+          <p className="text-green-700 font-semibold text-xs">
             Est. Bulan 1: {toText(b.revenue_streams?.estimated_monthly_revenue_year1)}
           </p>
           {/* Fallback fields */}
           {bmc.time_to_first_revenue && (
-            <p className="text-yellow-400 text-xs">Time to Revenue: {toText(bmc.time_to_first_revenue)}</p>
+            <p className="text-yellow-700 text-xs">Time to Revenue: {toText(bmc.time_to_first_revenue)}</p>
           )}
           {bmc.revenue_model_risk && (
-            <p className="text-orange-400 text-xs">Revenue Risk: {toText(bmc.revenue_model_risk)}</p>
+            <p className="text-orange-700 text-xs">Revenue Risk: {toText(bmc.revenue_model_risk)}</p>
           )}
         </div>
       ),
@@ -69,7 +69,7 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
       content: (
         <div className="space-y-2 text-sm text-muted">
           {toTextList(b.channels?.primary_channels).map((c, i) => (
-            <div key={i} className="flex gap-2"><span className="text-amber-400">›</span>{c}</div>
+            <div key={i} className="flex gap-2"><span className="text-amber-700">›</span>{c}</div>
           ))}
           <p className="text-muted text-xs mt-2">{toText(b.channels?.channel_strategy)}</p>
           <p className="text-faint text-xs">{toText(b.channels?.digital_presence)}</p>
@@ -82,12 +82,12 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
       content: (
         <div className="space-y-2 text-sm text-muted">
           {toTextList(b.key_resources?.human_resources).map((r, i) => (
-            <div key={i} className="flex gap-2"><span className="text-blue-400"></span><span className="text-xs">{r}</span></div>
+            <div key={i} className="flex gap-2"><span className="text-blue-700"></span><span className="text-xs">{r}</span></div>
           ))}
           {toTextList(b.key_resources?.intellectual_resources).map((r, i) => (
-            <div key={i} className="flex gap-2"><span className="text-purple-400"></span><span className="text-xs">{r}</span></div>
+            <div key={i} className="flex gap-2"><span className="text-purple-700"></span><span className="text-xs">{r}</span></div>
           ))}
-          <p className="text-rose-400 text-xs mt-2">Finansial: {toText(b.key_resources?.financial_requirements)}</p>
+          <p className="text-rose-700 text-xs mt-2">Finansial: {toText(b.key_resources?.financial_requirements)}</p>
         </div>
       ),
     },
@@ -97,7 +97,7 @@ export function BMCDisplay({ bmc }: { bmc: AnalysisResult["bmc"] }) {
     <div className="glass-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-base font-semibold">Business Model Canvas</h2>
-        <span className="text-2xl font-semibold text-violet-400 tnum">
+        <span className="text-2xl font-semibold text-violet-700 tnum">
           {toNum(bmc.business_model_score)}<span className="text-sm text-faint">/100</span>
         </span>
       </div>

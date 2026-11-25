@@ -1,0 +1,179 @@
+/* Token warna mode terang/gelap FeasiFlow AI.
+   Diimpor SETELAH globals.css di app/layout.tsx. Tidak mengubah globals.css maupun tailwind.config.ts;
+   penimpaan gelap memakai pemilih [data-theme="dark"] yang lebih spesifik.
+
+   Rasio kontras dihitung dengan rumus WCAG 2.2 (luminans relatif sRGB, ambang 0.04045):
+   AA teks biasa >= 4.5:1, teks besar dan komponen non-teks >= 3:1.
+
+   TERANG                                   GELAP
+   teks utama  #111111 / #f5f5f3  17.30     #f2f2ef / #0f0f0e  17.10
+   teks utama  #111111 / #ffffff  18.88     #f2f2ef / #1a1a19  15.53
+   muted       #5d5d58 / #f5f5f3   6.06     #a8a8a1 / #0f0f0e   8.02  (/#1a1a19 7.28)
+   faint       #6b6b65 / #f5f5f3   4.91     #8f8f88 / #1a1a19   5.35  (/#222220 4.90)
+   kartu hijau #14532d / #bbf7d0   7.52     #dcfce7 / #14532d   8.30
+   kartu kuning (angka 50)
+               #1c1917 / #fde68a  14.04     #fef3c7 / #713f12   7.79
+   kartu merah #881337 / #fecdd3   6.78     #ffe4e6 / #881337   7.97
+   kelas Layak #047857 / #ffffff   5.48     #6ee7b7 / #1a1a19  11.43
+   Bersyarat   #b45309 / #ffffff   5.02     #fcd34d / #1a1a19  12.08
+   Tidak Layak #be123c / #ffffff   6.29     #fda4af / #1a1a19   9.21
+   garis kontrol #8b8b85 / #ffffff 3.43     #6b6b65 / #1a1a19   3.25  (non-teks, >= 3:1)
+   Catatan: faint lama (#8b8b85 di #f5f5f3) hanya 3.14:1, gagal AA untuk teks biasa; token faint
+   di sini digelapkan menjadi #6b6b65. */
+
+:root {
+  color-scheme: light;
+  /* Kanal RGB, agar Tailwind bisa memakai rgb(var(--c-x) / <alpha-value>). */
+  --c-base: 245 245 243;      /* #f5f5f3 */
+  --c-surface: 255 255 255;   /* #ffffff */
+  --c-elevated: 250 250 248;  /* #fafaf8 */
+  --c-line: 227 227 223;      /* #e3e3df, garis dekoratif */
+  --c-fg: 17 17 17;           /* #111111 */
+  --c-muted: 93 93 88;        /* #5d5d58 */
+  --c-faint: 107 107 101;     /* #6b6b65 */
+  --c-kontrol: 139 139 133;   /* #8b8b85, batas kontrol >= 3:1 */
+  --c-nada-abu: 154 154 148;  /* #9a9a94, hanya untuk judul besar */
+
+  --tema-bg: rgb(var(--c-base));
+  --tema-surface: rgb(var(--c-surface));
+  --tema-elevated: rgb(var(--c-elevated));
+  --tema-line: rgb(var(--c-line));
+  --tema-fg: rgb(var(--c-fg));
+  --tema-muted: rgb(var(--c-muted));
+  --tema-faint: rgb(var(--c-faint));
+  --tema-kontrol: rgb(var(--c-kontrol));
+  --tema-bayang: 0 1px 2px rgba(17, 17, 17, 0.04), 0 12px 32px -20px rgba(17, 17, 17, 0.18);
+
+  /* Kartu skor: 100 hijau, 50 kuning, 0 merah. */
+  --skor-hijau-bg: #bbf7d0;  --skor-hijau-fg: #14532d;  --skor-hijau-garis: #15803d;
+  --skor-kuning-bg: #fde68a; --skor-kuning-fg: #1c1917; --skor-kuning-garis: #a16207;
+  --skor-merah-bg: #fecdd3;  --skor-merah-fg: #881337;  --skor-merah-garis: #be123c;
+
+  /* Warna teks kelas kelayakan di atas permukaan kartu. */
+  --kelas-layak: #047857;
+  --kelas-bersyarat: #b45309;
+  --kelas-tidak: #be123c;
+
+  /* Kompatibel dengan variabel lama di globals.css. */
+  --bg: var(--tema-bg);
+  --bg-elev: var(--tema-surface);
+}
+
+/* Tanpa JavaScript: ikuti sistem, kecuali pengguna memilih terang. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-base: 15 15 14;        /* #0f0f0e */
+    --c-surface: 26 26 25;     /* #1a1a19 */
+    --c-elevated: 34 34 32;    /* #222220 */
+    --c-line: 46 46 43;        /* #2e2e2b */
+    --c-fg: 242 242 239;       /* #f2f2ef */
+    --c-muted: 168 168 161;    /* #a8a8a1 */
+    --c-faint: 143 143 136;    /* #8f8f88 */
+    --c-kontrol: 107 107 101;  /* #6b6b65 */
+    --c-nada-abu: 133 133 127; /* #85857f */
+    --tema-bayang: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -20px rgba(0, 0, 0, 0.7);
+    --skor-hijau-bg: #14532d;  --skor-hijau-fg: #dcfce7;  --skor-hijau-garis: #22c55e;
+    --skor-kuning-bg: #713f12; --skor-kuning-fg: #fef3c7; --skor-kuning-garis: #eab308;
+    --skor-merah-bg: #881337;  --skor-merah-fg: #ffe4e6;  --skor-merah-garis: #fb7185;
+    --kelas-layak: #6ee7b7;
+    --kelas-bersyarat: #fcd34d;
+    --kelas-tidak: #fda4af;
+  }
+}
+
+/* Pilihan eksplisit (diset skrip awal / ToggleTema). Isi sama dengan blok media di atas. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-base: 15 15 14;
+  --c-surface: 26 26 25;
+  --c-elevated: 34 34 32;
+  --c-line: 46 46 43;
+  --c-fg: 242 242 239;
+  --c-muted: 168 168 161;
+  --c-faint: 143 143 136;
+  --c-kontrol: 107 107 101;
+  --c-nada-abu: 133 133 127;
+  --tema-bayang: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -20px rgba(0, 0, 0, 0.7);
+  --skor-hijau-bg: #14532d;  --skor-hijau-fg: #dcfce7;  --skor-hijau-garis: #22c55e;
+  --skor-kuning-bg: #713f12; --skor-kuning-fg: #fef3c7; --skor-kuning-garis: #eab308;
+  --skor-merah-bg: #881337;  --skor-merah-fg: #ffe4e6;  --skor-merah-garis: #fb7185;
+  --kelas-layak: #6ee7b7;
+  --kelas-bersyarat: #fcd34d;
+  --kelas-tidak: #fda4af;
+}
+
+/* ── Kelas pakai-langsung ─────────────────────────────────────────────── */
+.skor-hijau  { background: var(--skor-hijau-bg);  color: var(--skor-hijau-fg);  border: 1px solid var(--skor-hijau-garis); }
+.skor-kuning { background: var(--skor-kuning-bg); color: var(--skor-kuning-fg); border: 1px solid var(--skor-kuning-garis); }
+.skor-merah  { background: var(--skor-merah-bg);  color: var(--skor-merah-fg);  border: 1px solid var(--skor-merah-garis); }
+.kelas-layak { color: var(--kelas-layak); }
+.kelas-bersyarat { color: var(--kelas-bersyarat); }
+.kelas-tidak { color: var(--kelas-tidak); }
+
+/* Tombol alih tema (components/ToggleTema.tsx). Bulan tampil di mode terang, matahari di mode gelap. */
+.toggle-tema {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--tema-kontrol);
+  background: var(--tema-surface);
+  color: var(--tema-fg);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.toggle-tema:hover { background: var(--tema-elevated); }
+.toggle-tema .ikon-terang { display: none; }
+.toggle-tema .ikon-gelap { display: block; }
+[data-theme="dark"] .toggle-tema .ikon-terang { display: block; }
+[data-theme="dark"] .toggle-tema .ikon-gelap { display: none; }
+
+/* ── Penimpaan mode gelap untuk warna yang ditulis langsung di globals.css dan halaman ── */
+[data-theme="dark"] body { color: var(--tema-fg); background-color: var(--tema-bg); }
+[data-theme="dark"] .glass-card { background: var(--tema-surface); border-color: var(--tema-line); box-shadow: var(--tema-bayang); }
+[data-theme="dark"] .gradient-text { color: var(--tema-fg); }
+[data-theme="dark"] .nada-abu { color: rgb(var(--c-nada-abu)); }
+[data-theme="dark"] .hairline { border-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .focus-ring:focus-visible { box-shadow: 0 0 0 2px var(--tema-bg), 0 0 0 4px rgba(242, 242, 239, 0.7); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #3a3a37; border-color: var(--tema-bg); }
+[data-theme="dark"] .nav-kaca { background: rgba(15, 15, 14, 0.88); border-bottom-color: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .progres-gulir { background: var(--tema-fg); }
+[data-theme="dark"] .kartu:hover { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 22px 44px -22px rgba(0, 0, 0, 0.8); }
+[data-theme="dark"] .sorot::after { background: radial-gradient(380px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.06), transparent 50%); }
+[data-theme="dark"] .latar-kisi::before { background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.3px); }
+[data-theme="dark"] .alur { background: rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .alur::after { background: linear-gradient(90deg, transparent, var(--tema-fg), transparent); }
+[data-theme="dark"] .tepi-gelap::after { background: conic-gradient(from var(--sudut), transparent 0 70%, rgba(242, 242, 239, 0.55) 86%, transparent 100%); }
+[data-theme="dark"] .gelap { background: #080808; }
+
+/* Tombol utama hitam menjadi terang di latar gelap (teks #0f0f0e di #f2f2ef = 17.10:1). */
+[data-theme="dark"] .tombol-utama:not(.tombol-terang) { color: var(--tema-bg); }
+[data-theme="dark"] .tombol-utama:not(.tombol-terang)::after { background: var(--tema-fg); }
+[data-theme="dark"] .tombol-utama:not(.tombol-terang):hover::after { background: #ffffff; }
+[data-theme="dark"] .tombol-utama:not(.tombol-terang) .panah { background: var(--tema-bg); color: var(--tema-fg); }
+[data-theme="dark"] .tombol-garis::before { background: var(--tema-fg); }
+[data-theme="dark"] .tombol-garis:hover { color: var(--tema-bg); }
+
+/* Kelas utilitas Tailwind yang ditulis sebagai hex tetap di halaman lama. */
+[data-theme="dark"] .bg-white { background-color: var(--tema-surface); }
+[data-theme="dark"] .bg-base { background-color: var(--tema-bg); }
+[data-theme="dark"] .bg-surface { background-color: var(--tema-surface); }
+[data-theme="dark"] .bg-elevated { background-color: var(--tema-elevated); }
+[data-theme="dark"] .text-fg { color: var(--tema-fg); }
+[data-theme="dark"] .text-muted { color: var(--tema-muted); }
+[data-theme="dark"] .text-faint { color: var(--tema-faint); }
+[data-theme="dark"] .border-line { border-color: var(--tema-line); }
+[data-theme="dark"] .text-neutral-900 { color: var(--tema-fg); }
+/* bg-fg dengan teks putih (chip skor 100, tombol) dibalik agar tetap 17.10:1. */
+[data-theme="dark"] .bg-fg { background-color: var(--tema-fg); color: var(--tema-bg); }
+[data-theme="dark"] .bg-fg.text-white,
+[data-theme="dark"] .bg-fg.\!text-white { color: var(--tema-bg) !important; }
+/* Warna status: varian 300 di permukaan gelap (lihat tabel di atas). */
+[data-theme="dark"] :is(.text-emerald-700, .text-green-700, .text-green-800) { color: var(--kelas-layak); }
+[data-theme="dark"] :is(.text-amber-700, .text-amber-800, .text-yellow-700) { color: var(--kelas-bersyarat); }
+[data-theme="dark"] :is(.text-rose-700, .text-rose-800, .text-red-700) { color: var(--kelas-tidak); }
+[data-theme="dark"] .bg-amber-50 { background-color: #2b2108; }   /* #fcd34d di atasnya 11.00:1, #f2f2ef 14.14:1 */
+[data-theme="dark"] .border-amber-300 { border-color: #a16207; }  /* 3.22:1 terhadap #2b2108 */
+[data-theme="dark"] .bg-amber-100 { background-color: #2b2108; }
+[data-theme="dark"] .ring-amber-300 { --tw-ring-color: #a16207; }

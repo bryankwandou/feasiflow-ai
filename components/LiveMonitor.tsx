@@ -1,226 +1,283 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle, Loader2, Clock, AlertCircle, Circle } from "lucide-react";
-import { AGENT_LABELS, AGENT_ORDER } from "@/lib/constants";
-import { formatElapsed } from "@/lib/utils";
-import type { AgentEvent, AnalysisResult } from "@/lib/types";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle, Loader2, Clock, AlertCircle } from "lucide-react";
+import type { HasilAnalisis } from "@/lib/tiga-agen/tipe";
 
-type AgentStatus = "waiting" | "running" | "done" | "error";
+type Status = "waiting" | "running" | "done" | "error";
+interface Langkah { agen: string; teks: string; jenis: "alat" | "periksa-lolos" | "periksa-tolak" }
 
-interface AgentState {
-  status: AgentStatus;
-  elapsed?: number;
-  tokens?: number;
+const AGEN = [
+  { kunci: "a1", nama: "A1 Riset", ket: "Mencari dan membaca sumber" },
+  { kunci: "a2", nama: "A2 Analisis", ket: "Menyusun BMC dan risiko" },
+  { kunci: "a3", nama: "A3 Penilaian", ket: "Memberi skor 10 indikator" },
+];
+
+const NAMA_ALAT: Record<string, string> = {
+  cari_web: "Mencari di web",
+  baca_laman: "Membaca laman",
+  cek_direktori_ojk: "Memeriksa Direktori OJK",
+  cek_statistik_ojk: "Membaca Statistik LPBBTI OJK",
+  lihat_bukti: "Melihat bukti tersimpan",
+  minta_riset: "Meminta riset tambahan",
+};
+
+function ringkasArgumen(alat: string, argumen: string): string {
+  try {
+    const a = JSON.parse(argumen) as Record<string, unknown>;
+    const v = Object.values(a)[0];
+    const d = Array.isArray(v) ? v.map(String) : [String(v ?? "")];
+    if (alat === "baca_laman") return `${d.length} laman`;
+    return d.join("; ").slice(0, 90);
+  } catch {
+    return argumen.slice(0, 90);
+  }
 }
 
 interface Props {
   sessionId: string;
-  onComplete: (data: AnalysisResult) => void;
+  onComplete: (data: HasilAnalisis) => void;
 }
 
 export function LiveMonitor({ sessionId, onComplete }: Props) {
-  const [agentStates, setAgentStates] = useState<Record<string, AgentState>>(
-    Object.fromEntries(AGENT_ORDER.map((a) => [a, { status: "waiting" }]))
+  const [status, setStatus] = useState<Record<string, { status: Status; detik?: number }>>(
+    Object.fromEntries(AGEN.map((a) => [a.kunci, { status: "waiting" as Status }])),
   );
-  const [overallProgress, setOverallProgress] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [isQueued, setIsQueued] = useState(false);
-  const [queuePos, setQueuePos] = useState<number | null>(null);
+  const [progres, setProgres] = useState(0);
+  const [selesai, setSelesai] = useState(false);
+  const [galat, setGalat] = useState("");
+  const [antre, setAntre] = useState(false);
+  const [menunggu, setMenunggu] = useState(false);
+  const [langkah, setLangkah] = useState<Langkah[]>([]);
+  const ujung = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Read cached params from sessionStorage
+    ujung.current?.scrollIntoView({ block: "nearest" });
+  }, [langkah.length]);
+
+  useEffect(() => {
     let params: unknown = null;
     try {
       const raw = sessionStorage.getItem(`params_${sessionId}`);
       if (raw) params = JSON.parse(raw);
-    } catch { /* ignore */ }
+    } catch { /* abaikan */ }
+    const pengendali = new AbortController();
+    const putaran = () => {
+      try { return Number(sessionStorage.getItem(`putaran_${sessionId}`)) || 1; } catch { return 1; }
+    };
 
-    if (!params) {
-      setErrorMsg("Parameter analisis tidak ditemukan. Silakan mulai analisis baru.");
-      setHasError(true);
-      return;
-    }
-
-    const controller = new AbortController();
+    const tampil = (h: HasilAnalisis) => {
+      try { sessionStorage.setItem(`hasil_${sessionId}`, JSON.stringify(h)); } catch { /* abaikan */ }
+      setStatus(Object.fromEntries(AGEN.map((a) => [a.kunci, { status: "done" as Status }])));
+      setProgres(100);
+      setSelesai(true);
+      onComplete(h);
+    };
+    // Hasil tersimpan dibaca lebih dulu supaya muat ulang tidak menjalankan analisis lagi.
+    const tersimpan = async (): Promise<"selesai" | "berjalan" | "gagal" | "tidak_ada"> => {
+      try {
+        const r = await fetch(`/api/result/${sessionId}`, { cache: "no-store", signal: pengendali.signal });
+        const d = (await r.json()) as { status: string; hasil?: HasilAnalisis; galat?: string };
+        if (d.status === "selesai" && d.hasil) { tampil(d.hasil); return "selesai"; }
+        if (d.status === "berjalan") return "berjalan";
+        if (d.status === "gagal") { setGalat(d.galat || "Analisis ini gagal."); return "gagal"; }
+      } catch { /* jatuh ke salinan lokal */ }
+      try {
+        const raw = sessionStorage.getItem(`hasil_${sessionId}`);
+        if (raw) { tampil(JSON.parse(raw) as HasilAnalisis); return "selesai"; }
+      } catch { /* abaikan */ }
+      return "tidak_ada";
+    };
+    const tunggu = async () => {
+      setMenunggu(true);
+      for (let i = 0; i < 90 && !pengendali.signal.aborted; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const s = await tersimpan();
+        if (s === "selesai" || s === "gagal") break;
+        if (s === "tidak_ada") { setGalat("Analisis tidak ditemukan. Mulai analisis baru dari formulir."); break; }
+      }
+      setMenunggu(false);
+    };
 
     (async () => {
       try {
-        // Queue-aware start: if the server is at capacity it replies 503; we
-        // wait in the antrian and retry until a slot frees (no hard error).
+        const awal = await tersimpan();
+        if (awal === "selesai" || awal === "gagal") return;
+        if (awal === "berjalan") { await tunggu(); return; }
+        if (!params) {
+          setGalat("Analisis tidak ditemukan. Mulai analisis baru dari formulir.");
+          return;
+        }
         let res: Response;
         for (;;) {
           res = await fetch("/api/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ params, sessionId }),
-            signal: controller.signal,
+            body: JSON.stringify({ params, sessionId, putaran: putaran() }),
+            signal: pengendali.signal,
           });
+          if (res.status === 409) { await tunggu(); return; }
           if (res.status !== 503) break;
-          let info: { active?: number; capacity?: number } = {};
-          try { info = await res.json(); } catch { /* ignore */ }
-          setIsQueued(true);
-          setQueuePos(Math.max(1, (info.active ?? 0) - (info.capacity ?? 0) + 1));
-          const retryAfter = Number(res.headers.get("Retry-After") ?? 5);
-          await new Promise((r) => setTimeout(r, (retryAfter + Math.random() * 2) * 1000));
-          if (controller.signal.aborted) return;
+          setAntre(true);
+          await new Promise((r) => setTimeout(r, 5000 + Math.random() * 2000));
+          if (pengendali.signal.aborted) return;
         }
-        setIsQueued(false);
-
-        if (!res.ok || !res.body) {
-          const errText = await res.text().catch(() => "Unknown error");
-          setErrorMsg(`Error: ${errText}`);
-          setHasError(true);
+        setAntre(false);
+        // Tanya balik agen pemeriksa isian: kembali ke formulir dengan pertanyaan di dekat isian terkait.
+        if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+          const d = (await res.json().catch(() => ({}))) as { status?: string };
+          if (d.status === "perlu_klarifikasi") {
+            try { sessionStorage.setItem(`klarifikasi_${sessionId}`, JSON.stringify(d)); } catch { /* abaikan */ }
+            window.location.replace(`/analyze?ulang=${encodeURIComponent(sessionId)}`);
+            return;
+          }
+          setGalat("Server menjawab tanpa aliran analisis.");
           return;
         }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
+        if (!res.ok || !res.body) {
+          const t = await res.text().catch(() => "");
+          let pesan = t;
+          try { pesan = (JSON.parse(t) as { error?: string }).error || t; } catch { /* teks biasa */ }
+          setGalat(pesan || "Server tidak menjawab.");
+          return;
+        }
+        const pembaca = res.body.getReader();
+        const dekoder = new TextDecoder();
+        let penampung = "";
+        let tuntas = false;
+        for (;;) {
+          const { done, value } = await pembaca.read();
           if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          // SSE format: "data: {...}\n\n"
-          const parts = buffer.split("\n\n");
-          buffer = parts.pop() ?? "";
-
-          for (const part of parts) {
-            const line = part.trim();
-            if (!line.startsWith("data: ")) continue;
-            try {
-              const event: AgentEvent = JSON.parse(line.slice(6));
-              setOverallProgress(event.progress);
-
-              setAgentStates((prev) => {
-                const next = { ...prev };
-                const agent = event.agent;
-                if (event.event === "agent_start") {
-                  next[agent] = { ...next[agent], status: "running" };
-                } else if (event.event === "agent_done") {
-                  next[agent] = {
-                    status: "done",
-                    elapsed: event.elapsed_seconds,
-                    tokens: event.tokens_used,
-                  };
-                } else if (event.event === "agent_error") {
-                  next[agent] = { ...next[agent], status: "error" };
-                  setHasError(true);
-                  if (event.message) setErrorMsg(event.message);
-                } else if (event.event === "complete") {
-                  next[agent] = { ...next[agent], status: "done" };
-                  setIsComplete(true);
-                  if (event.data) onComplete(event.data as AnalysisResult);
-                }
-                return next;
-              });
-            } catch { /* ignore SSE parse errors */ }
+          penampung += dekoder.decode(value, { stream: true });
+          const potong = penampung.split("\n\n");
+          penampung = potong.pop() ?? "";
+          for (const p of potong) {
+            const baris = p.trim();
+            if (!baris.startsWith("data: ")) continue;
+            let ev: Record<string, unknown>;
+            try { ev = JSON.parse(baris.slice(6)); } catch { continue; }
+            if (typeof ev.progress === "number") setProgres(ev.progress);
+            const agen = String(ev.agent ?? "");
+            if (ev.event === "agent_start") {
+              setStatus((s) => ({ ...s, [agen]: { status: "running" } }));
+            } else if (ev.event === "agent_done") {
+              setStatus((s) => ({ ...s, [agen]: { status: "done", detik: Number(ev.elapsed_seconds) } }));
+            } else if (ev.event === "langkah") {
+              const alat = String(ev.alat);
+              setLangkah((l) => [...l, {
+                agen: String(ev.agen),
+                jenis: "alat",
+                teks: `${NAMA_ALAT[alat] || alat}: ${ringkasArgumen(alat, String(ev.argumen ?? ""))}`,
+              }]);
+            } else if (ev.event === "periksa") {
+              const catatan = Array.isArray(ev.catatan) ? (ev.catatan as string[]) : [];
+              setLangkah((l) => [...l, {
+                agen: String(ev.fase),
+                jenis: ev.lolos ? "periksa-lolos" : "periksa-tolak",
+                teks: ev.lolos
+                  ? `Pemeriksaan ke-${ev.percobaan} lolos`
+                  : `Pemeriksaan ke-${ev.percobaan} menolak: ${catatan.join("; ").slice(0, 140)}`,
+              }]);
+            } else if (ev.event === "agent_error") {
+              setStatus((s) => ({ ...s, [agen]: { status: "error" } }));
+              setGalat(String(ev.message || "Terjadi galat pada agen."));
+            } else if (ev.event === "complete") {
+              tuntas = true;
+              setSelesai(true);
+              if (ev.data) tampil(ev.data as HasilAnalisis);
+            }
           }
         }
+        if (!tuntas) setGalat((g) => g || "Sambungan terputus sebelum analisis selesai. Coba mulai lagi.");
       } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          setErrorMsg(String(err));
-          setHasError(true);
-        }
+        if ((err as Error).name !== "AbortError") setGalat("Sambungan terputus. Coba mulai lagi.");
       }
     })();
 
-    return () => controller.abort();
+    return () => pengendali.abort();
   }, [sessionId, onComplete]);
 
   return (
-    <div className="glass-card rounded-2xl p-6 sticky top-6">
-      <h3 className="font-semibold text-sm mb-5 flex items-center gap-2">
-        <span>Progress Analisis</span>
-        <span className="ml-auto text-accent-fg text-sm font-mono tnum">{overallProgress}%</span>
-      </h3>
-
-      {/* Progress bar */}
-      <div className="h-1.5 bg-white/[0.08] rounded-full overflow-hidden mb-6">
-        <div
-          className="h-full bg-accent rounded-full transition-all duration-500"
-          style={{ width: `${overallProgress}%` }}
-        />
+    <div className="gelap rounded-2xl p-5">
+      <div className="flex items-baseline justify-between">
+        <p className="text-sm text-white/60">{selesai ? "Analisis selesai" : "Analisis berjalan"}</p>
+        <p className="text-sm font-mono tnum text-white/60">{progres}%</p>
+      </div>
+      <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden" role="progressbar" aria-valuenow={progres} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full bg-white rounded-full transition-[width] duration-700 ease-out" style={{ width: `${progres}%` }} />
       </div>
 
-      {/* Antrian (queue) banner */}
-      {isQueued && !isComplete && (
-        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-center">
-          <p className="text-yellow-300 font-semibold text-sm flex items-center justify-center gap-2">
-            <Loader2 size={14} className="animate-spin" /> Antrian — menunggu giliran…
-          </p>
-          {queuePos != null && (
-            <p className="text-muted text-xs mt-1">Perkiraan posisi: #{queuePos}</p>
-          )}
-          <p className="text-faint text-[11px] mt-1">
-            Analisis dimulai otomatis saat slot tersedia.
-          </p>
-        </div>
+      {menunggu && !selesai && (
+        <p className="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl text-white/70 text-sm">
+          Analisis ini masih berjalan di server. Hasil tampil otomatis saat selesai, tanpa menjalankan ulang.
+        </p>
       )}
 
-      {/* Agents */}
-      <div className="space-y-2">
-        {AGENT_ORDER.map((agentKey) => {
-          const state = agentStates[agentKey];
-          const label = AGENT_LABELS[agentKey];
-          const { status, elapsed, tokens } = state;
+      {antre && !selesai && (
+        <p className="mt-4 p-3 bg-amber-400/10 border border-amber-300/30 rounded-xl text-amber-200 text-sm">
+          Sistem sedang penuh. Analisis dimulai otomatis saat ada giliran.
+        </p>
+      )}
 
+      <ol className="mt-5 space-y-2">
+        {AGEN.map((a, i) => {
+          const s = status[a.kunci];
           return (
-            <div
-              key={agentKey}
-              className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                status === "running"
-                  ? "bg-blue-500/10 border-blue-500/30"
-                  : status === "done"
-                  ? "bg-green-500/5 border-green-500/20"
-                  : status === "error"
-                  ? "bg-red-500/10 border-red-500/30"
-                  : "bg-white/[0.02] border-white/[0.06]"
+            <li
+              key={a.kunci}
+              className={`flex items-center gap-3 p-3 rounded-xl border transition-colors duration-300 ${
+                s.status === "running" ? "bg-white/10 border-white/30"
+                : s.status === "error" ? "bg-rose-500/10 border-rose-400/40"
+                : "bg-white/[0.03] border-white/10"
               }`}
             >
-              <div className="w-5 h-5 flex-shrink-0">
-                {status === "waiting" && <Circle size={20} className="text-faint" />}
-                {status === "running" && <Loader2 size={20} className="text-accent-fg animate-spin" />}
-                {status === "done" && <CheckCircle size={20} className="text-green-400" />}
-                {status === "error" && <AlertCircle size={20} className="text-red-400" />}
+              <span
+                className={`h-7 w-7 shrink-0 rounded-full grid place-items-center text-xs font-mono transition-colors duration-300 ${
+                  s.status === "done" ? "bg-white text-fg"
+                  : s.status === "running" ? "bg-white/15 text-white"
+                  : s.status === "error" ? "bg-rose-400 text-fg"
+                  : "bg-white/5 text-white/40"
+                }`}
+              >
+                {s.status === "done" ? <CheckCircle size={15} aria-hidden="true" />
+                  : s.status === "running" ? <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                  : s.status === "error" ? <AlertCircle size={15} aria-hidden="true" />
+                  : i + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium ${s.status === "waiting" ? "text-white/45" : "text-white"}`}>{a.nama}</p>
+                <p className="text-xs text-white/45">{a.ket}</p>
               </div>
-              <span className={`flex-1 text-sm font-medium ${
-                status === "running" ? "text-accent-fg agent-running" :
-                status === "done" ? "text-emerald-400" :
-                status === "error" ? "text-rose-400" :
-                "text-faint"
-              }`}>{label}</span>
-              {elapsed != null && (
-                <span className="text-xs text-faint flex items-center gap-1 tnum">
-                  <Clock size={11} />{formatElapsed(elapsed)}
-                </span>
+              {s.detik != null && (
+                <span className="text-xs text-white/45 flex items-center gap-1 tnum"><Clock size={11} />{s.detik.toFixed(0)} dtk</span>
               )}
-              {tokens != null && tokens > 0 && (
-                <span className="text-[10px] text-faint tnum">{tokens}t</span>
-              )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
-      {isComplete && (
-        <div className="mt-5 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
-          <p className="text-green-400 font-semibold text-sm">Analisis Selesai!</p>
-          <p className="text-muted text-xs mt-1">Scroll ke bawah untuk laporan lengkap</p>
+      {langkah.length > 0 && (
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <p className="text-xs text-white/45 mb-2">Langkah agen</p>
+          <ol className="space-y-1.5 max-h-72 overflow-y-auto pr-1 text-xs">
+            {langkah.map((l, i) => (
+              <li key={i} className="flex gap-2 leading-snug animate-fade-up">
+                <span className="font-mono text-white/35 shrink-0 w-7">{l.agen}</span>
+                <span className={l.jenis === "periksa-lolos" ? "text-white" : l.jenis === "periksa-tolak" ? "text-amber-300" : "text-white/60"}>
+                  {l.teks}
+                </span>
+              </li>
+            ))}
+            <div ref={ujung} />
+          </ol>
         </div>
       )}
 
-      {hasError && !isComplete && (
-        <div className="mt-5 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
-          <p className="text-red-400 font-semibold text-sm">Error</p>
-          {errorMsg && <p className="text-muted text-xs mt-1">{errorMsg}</p>}
-          <a href="/analyze" className="mt-2 inline-block text-xs text-accent-fg underline">
-            Mulai Analisis Baru
-          </a>
+      {galat && !selesai && (
+        <div className="mt-5 p-4 bg-rose-500/10 border border-rose-400/40 rounded-xl" role="alert">
+          <p className="text-rose-200 font-medium text-sm">Analisis berhenti</p>
+          <p className="text-white/60 text-xs mt-1 break-words">{galat}</p>
+          <a href="/analyze" className="mt-2 inline-block text-xs text-white underline">Mulai analisis baru</a>
         </div>
       )}
     </div>

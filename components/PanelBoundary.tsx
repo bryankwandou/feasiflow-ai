@@ -31,10 +31,10 @@ export class PanelBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="glass-card rounded-2xl p-5 border border-yellow-500/20">
-          <p className="text-sm font-semibold text-yellow-300">
+          <p className="text-sm font-semibold text-yellow-800">
             {this.props.name ?? "Bagian ini"} tidak dapat ditampilkan
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-faint mt-1">
             Data dari AI untuk bagian ini berformat tak terduga, jadi dilewati. Bagian lain tetap tampil normal.
           </p>
         </div>
