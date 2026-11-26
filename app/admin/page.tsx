@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { sudahMasuk } from "@/lib/admin";
 import { daftar, daftarAdmin } from "@/lib/tiga-agen/simpan";
+import KendaliHeader from "@/components/KendaliHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin — FeasiFlow AI", robots: { index: false } };
@@ -63,10 +64,13 @@ export default async function Admin({ searchParams }: { searchParams: { salah?: 
             <a href="/" className="text-sm text-muted hover:text-fg transition-colors">Beranda</a>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">Riwayat analisis</h1>
           </div>
-          <form method="post" action="/api/admin">
-            <input type="hidden" name="aksi" value="keluar" />
-            <button type="submit" className="rounded-full border border-line bg-white px-4 py-2 text-sm text-fg transition-colors hover:border-fg focus-ring">Keluar</button>
-          </form>
+          <div className="flex items-center gap-3">
+            <KendaliHeader />
+            <form method="post" action="/api/admin">
+              <input type="hidden" name="aksi" value="keluar" />
+              <button type="submit" className="rounded-full border border-line bg-white px-4 py-2 text-sm text-fg transition-colors hover:border-fg focus-ring">Keluar</button>
+            </form>
+          </div>
         </div>
 
         <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

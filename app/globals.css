@@ -159,7 +159,7 @@ body {
 /* Label bergulir: teks naik keluar, salinannya naik masuk. */
 .gulir { display: inline-block; overflow: hidden; height: 1.3em; line-height: 1.3em; vertical-align: bottom; }
 .gulir > span { display: block; transition: transform 0.5s var(--lentur); }
-.gulir > span::after { content: attr(data-teks); display: block; }
+.gulir > span > span { display: block; white-space: nowrap; }
 :is(a, button):hover .gulir > span { transform: translateY(-50%); }
 
 /* Lingkaran panah: panah lama keluar ke kanan, panah baru masuk dari kiri (VeilGuard). */

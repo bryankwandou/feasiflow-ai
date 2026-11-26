@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import { peringkatSAW, MAKS_IDE, MIN_IDE, type HasilBanding } from "@/lib/tiga-agen/banding-ide";
 import { BENTUK_HUKUM, RUBRIK, URAIAN_RUBRIK, type HasilAnalisis, type Ide } from "@/lib/tiga-agen/tipe";
+import KendaliHeader from "@/components/KendaliHeader";
 
 type Status = "siap" | "berjalan" | "selesai" | "klarifikasi" | "ditolak" | "gagal";
 type Masalah = { isian: string; alasan: string; jenis: "tolak" | "peringatan"; sampah?: boolean };
@@ -193,9 +194,12 @@ export default function BandingPage() {
     <div className="min-h-screen bg-base">
       <header className="gelap">
         <div className="max-w-6xl mx-auto px-4 md:px-6 pt-6 pb-10">
-          <a href="/" className="inline-flex items-center gap-1.5 py-1.5 text-sm text-white/60 hover:text-white focus-ring rounded">
-            <ArrowLeft size={15} /> FeasiFlow AI
-          </a>
+          <div className="flex items-center justify-between gap-3">
+            <a href="/" className="inline-flex items-center gap-1.5 py-1.5 text-sm text-white/60 hover:text-white focus-ring rounded">
+              <ArrowLeft size={15} /> FeasiFlow AI
+            </a>
+            <KendaliHeader gelap />
+          </div>
           <h1 className="mt-8 text-[30px] leading-tight md:text-[44px] font-medium tracking-[-0.03em]">Banding beberapa ide</h1>
           <p className="mt-3 max-w-2xl text-[15px] text-white/65 leading-relaxed">
             Isi {MIN_IDE} sampai {MAKS_IDE} ide. Tiap ide dianalisis satu per satu oleh tiga agen dengan rubrik yang sama, lalu diperingkat dengan

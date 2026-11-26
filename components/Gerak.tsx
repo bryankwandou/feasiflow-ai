@@ -36,7 +36,10 @@ export function PenyorotKartu() {
 export function Gulir({ teks }: { teks: string }) {
   return (
     <span className="gulir">
-      <span data-teks={teks}>{teks}</span>
+      <span>
+        <span>{teks}</span>
+        <span aria-hidden="true">{teks}</span>
+      </span>
     </span>
   );
 }

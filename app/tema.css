@@ -111,8 +111,77 @@
 .kelas-bersyarat { color: var(--kelas-bersyarat); }
 .kelas-tidak { color: var(--kelas-tidak); }
 
-/* Tombol alih tema (components/ToggleTema.tsx). Bulan tampil di mode terang, matahari di mode gelap. */
+/* ── Kendali di header (components/KendaliHeader.tsx) ──────────────────────
+   Satu kapsul: [bola dunia KODE v] | [matahari/bulan]. Tinggi 36px, target sentuh >= 24px (WCAG 2.5.8). */
+.kendali-header {
+  --kh-garis: rgb(var(--c-fg) / 0.14);
+  --kh-garis-hover: rgb(var(--c-fg) / 0.32);
+  --kh-isi: rgb(var(--c-fg) / 0.06);
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--kh-garis);
+  color: var(--tema-fg);
+  transition: border-color 0.2s ease;
+}
+.kendali-header:hover { border-color: var(--kh-garis-hover); }
+.kendali-header.kendali-gelap {
+  --kh-garis: rgba(255, 255, 255, 0.18);
+  --kh-garis-hover: rgba(255, 255, 255, 0.4);
+  --kh-isi: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.pilih-ringkas {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 100%;
+  padding: 0 0.625rem 0 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: background-color 0.2s ease;
+}
+.pilih-ringkas:hover { background: var(--kh-isi); }
+.pilih-ringkas:focus-within { box-shadow: 0 0 0 2px currentColor; }
+.pilih-ringkas .kode-bahasa { min-width: 1.25rem; text-align: center; font-variant-numeric: tabular-nums; }
+.pilih-ringkas select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px; /* cegah zoom otomatis iOS */
+  color: #111;
+}
+.pilih-ringkas select:focus { outline: none; }
+.kendali-header .toggle-tema {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+  margin-left: 2px;
+  position: relative;
+}
+.kendali-header .toggle-tema::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: var(--kh-garis);
+}
+.kendali-header .toggle-tema:hover { background: var(--kh-isi); }
+
+/* ── Tombol alih tema: matahari dan bulan bertumpuk, berputar menyilang saat tema berganti ── */
 .toggle-tema {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 2.25rem;
@@ -120,14 +189,45 @@
   border-radius: 0.625rem;
   border: 1px solid var(--tema-kontrol);
   background: var(--tema-surface);
-  color: var(--tema-fg);
-  transition: background-color 0.15s, border-color 0.15s;
+  color: inherit;
+  overflow: hidden;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 .toggle-tema:hover { background: var(--tema-elevated); }
-.toggle-tema .ikon-terang { display: none; }
-.toggle-tema .ikon-gelap { display: block; }
-[data-theme="dark"] .toggle-tema .ikon-terang { display: block; }
-[data-theme="dark"] .toggle-tema .ikon-gelap { display: none; }
+.toggle-tema:active { transform: scale(0.9); }
+.toggle-tema svg {
+  grid-area: 1 / 1;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  transform-origin: 50% 50%;
+}
+/* Terang: bulan tampil (ajakan ke gelap), matahari tersembunyi di bawah. */
+.toggle-tema .ikon-gelap { transform: rotate(0) scale(1); opacity: 1; }
+.toggle-tema .ikon-terang { transform: rotate(-120deg) scale(0.2) translateY(6px); opacity: 0; }
+.toggle-tema:hover .ikon-gelap { transform: rotate(-18deg) scale(1.08); }
+/* Gelap: matahari tampil, bulan berputar keluar. */
+[data-theme="dark"] .toggle-tema .ikon-gelap { transform: rotate(120deg) scale(0.2) translateY(6px); opacity: 0; }
+[data-theme="dark"] .toggle-tema .ikon-terang { transform: rotate(0) scale(1); opacity: 1; }
+[data-theme="dark"] .toggle-tema:hover .ikon-terang { transform: rotate(45deg) scale(1.08); }
+
+/* ── Animasi pergantian tema ──
+   View Transitions: tema baru menyebar sebagai lingkaran dari tombol (clip-path diatur di ToggleTema),
+   tampilan lama sedikit mundur agar terasa ada kedalaman. */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+html.tema-beralih::view-transition-old(root) { animation: tema-lama-mundur 0.72s cubic-bezier(0.7, 0, 0.25, 1) both; }
+@keyframes tema-lama-mundur { to { transform: scale(0.97); filter: brightness(0.8); } }
+/* Cadangan untuk peramban tanpa View Transitions: warna memudar 0,5 detik. */
+html.tema-pudar *,
+html.tema-pudar *::before,
+html.tema-pudar *::after {
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, fill 0.5s ease, stroke 0.5s ease, box-shadow 0.5s ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toggle-tema svg { transition: opacity 0.15s linear; }
+  html.tema-beralih::view-transition-old(root) { animation: none; }
+}
 
 /* ── Penimpaan mode gelap untuk warna yang ditulis langsung di globals.css dan halaman ── */
 [data-theme="dark"] body { color: var(--tema-fg); background-color: var(--tema-bg); }

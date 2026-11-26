@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Loader2, Minus } from "lucide-react";
 import { Gulir, Panah, JudulKata } from "@/components/Gerak";
 import { MedanTitik } from "@/components/MedanTitik";
 import AmbilDokumen from "@/components/AmbilDokumen";
+import KendaliHeader from "@/components/KendaliHeader";
 import { BENTUK_HUKUM, JENIS_PENDANAAN, LAYANAN, RUBRIK, SYARAT_SDM, TAHAP_KESIAPAN, URAIAN_RUBRIK, type Ide, type Indikator } from "@/lib/tiga-agen/tipe";
 
 type Kolom = { kunci: keyof Ide; label: string; contoh: string; bantuan: string; lebar?: boolean; opsional?: boolean; panjang?: boolean; angka?: boolean };
@@ -243,9 +244,12 @@ export default function AnalyzePage() {
       <header className="gelap">
         <MedanTitik className="medan opacity-25 !top-[58%] !h-[42%]" warna="#ffffff" varian="pita" />
         <div className="max-w-5xl mx-auto px-6 pt-6 pb-12 md:pb-14 animate-fade-up">
-          <a href="/" className="inline-flex items-center gap-1.5 py-1.5 text-sm text-white/60 hover:text-white transition-colors duration-150 focus-ring rounded">
-            <ArrowLeft size={15} /> FeasiFlow AI
-          </a>
+          <div className="flex items-center justify-between gap-3">
+            <a href="/" className="inline-flex items-center gap-1.5 py-1.5 text-sm text-white/60 hover:text-white transition-colors duration-150 focus-ring rounded">
+              <ArrowLeft size={15} /> FeasiFlow AI
+            </a>
+            <KendaliHeader gelap />
+          </div>
           <div className="mt-9 grid md:grid-cols-[1.5fr_1fr] gap-x-12 gap-y-6 items-end">
             <JudulKata redup="Ceritakan idenya," utama="agen yang mencari buktinya." className="judul-gelap text-[34px] leading-[1.06] md:text-[52px] md:leading-[1.03] font-medium tracking-[-0.035em]" />
             <p className="text-[15px] text-white/65 leading-relaxed">

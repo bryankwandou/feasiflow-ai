@@ -4,7 +4,8 @@
 // (WAI-ARIA APG, pola Button: label toggle tidak boleh berubah saat keadaannya berubah).
 // Ikon dipilih oleh CSS dari atribut data-theme di <html>, jadi tidak ada kedip sebelum hidrasi.
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
+import { flushSync } from "react-dom";
 import { Moon, Sun } from "lucide-react";
 import {
   KUNCI_TEMA,
@@ -66,11 +67,50 @@ export default function ToggleTema({ className = "" }: { className?: string }) {
 
   const gelap = tema === "dark";
 
-  const alih = () => {
-    const baru: Tema = gelap ? "light" : "dark";
-    terapkanTema(baru);
-    simpanTema(baru);
-    setTema(baru);
+  // Animasi pergantian: tema baru menyebar sebagai lingkaran dari tombol ke seluruh layar
+  // (View Transitions API). Peramban tanpa API itu mendapat transisi warna halus 0,5 detik.
+  // prefers-reduced-motion: langsung berganti tanpa animasi.
+  const alih = (e: MouseEvent<HTMLButtonElement>) => {
+    const baru: Tema = (document.documentElement.getAttribute("data-theme") ?? tema) === "dark" ? "light" : "dark";
+    const ganti = () => {
+      terapkanTema(baru);
+      simpanTema(baru);
+      flushSync(() => setTema(baru));
+    };
+    let kurangi = false;
+    try {
+      kurangi = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {
+      /* abaikan */
+    }
+    const d = document.documentElement;
+    if (kurangi) {
+      ganti();
+      return;
+    }
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const jari = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+    d.classList.add("tema-beralih");
+    const selesai = () => window.setTimeout(() => d.classList.remove("tema-beralih", "tema-pudar"), 760);
+    if (!doc.startViewTransition) {
+      d.classList.add("tema-pudar");
+      ganti();
+      selesai();
+      return;
+    }
+    const vt = doc.startViewTransition(ganti);
+    vt.ready
+      .then(() => {
+        d.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${jari}px at ${x}px ${y}px)`] },
+          { duration: 720, easing: "cubic-bezier(0.7, 0, 0.25, 1)", pseudoElement: "::view-transition-new(root)" },
+        );
+      })
+      .catch(() => undefined)
+      .finally(selesai);
   };
 
   return (
@@ -82,8 +122,8 @@ export default function ToggleTema({ className = "" }: { className?: string }) {
       title="Mode gelap"
       className={`toggle-tema focus-ring ${className}`}
     >
-      <Sun aria-hidden="true" className="ikon-terang h-4 w-4" />
-      <Moon aria-hidden="true" className="ikon-gelap h-4 w-4" />
+      <Sun aria-hidden="true" className="ikon-terang h-[18px] w-[18px]" />
+      <Moon aria-hidden="true" className="ikon-gelap h-[18px] w-[18px]" />
     </button>
   );
 }

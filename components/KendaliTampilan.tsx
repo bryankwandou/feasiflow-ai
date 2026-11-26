@@ -1,7 +1,6 @@
 "use client";
 
-// Kendali tampilan global: pemilih bahasa + tombol tema (pojok kanan bawah, tidak menutupi menu),
-// dan penerjemah teks halaman.
+// Penerjemah teks halaman (global). Pemilih bahasa dan tombol tema ada di header tiap halaman.
 // Halaman ditulis dalam bahasa Indonesia. Terjemahan diambil dari dua sumber:
 //   1. kamus berkunci (lib/i18n/kamus/<kode>.ts), dicocokkan lewat nilai bahasa Indonesianya;
 //   2. peta teks tampil (lib/i18n/tampil/<kode>.json): seluruh teks yang tampil di halaman produksi,
@@ -11,9 +10,7 @@
 
 import { useEffect } from "react";
 import { KAMUS_SUMBER, muatKamus, type KodeBahasa, type Kunci } from "@/lib/i18n";
-import { PilihBahasa } from "@/components/PilihBahasa";
 import { useBahasa } from "@/lib/i18n/PenyediaBahasa";
-import ToggleTema from "@/components/ToggleTema";
 
 const asli = new WeakMap<Text, string>();
 const asliAttr = new WeakMap<Element, Record<string, string>>();
@@ -126,14 +123,6 @@ export default function KendaliTampilan() {
     };
   }, [kode]);
 
-  return (
-    <div
-      data-tanpa-terjemah
-      className="fixed bottom-4 right-4 z-[60] flex items-center gap-2 rounded-xl border p-1.5 shadow-lg backdrop-blur"
-      style={{ background: "var(--tema-surface)", borderColor: "var(--tema-line)", color: "rgb(var(--c-fg))" }}
-    >
-      <PilihBahasa />
-      <ToggleTema />
-    </div>
-  );
+  // Tombol bahasa dan tema kini berada di header tiap halaman (components/KendaliHeader.tsx).
+  return null;
 }

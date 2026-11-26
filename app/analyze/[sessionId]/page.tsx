@@ -8,6 +8,7 @@ import { PanelBoundary } from "@/components/PanelBoundary";
 import { Muncul, Hitung } from "@/components/Muncul";
 import { TombolUtama, JudulKata } from "@/components/Gerak";
 import { MedanTitik } from "@/components/MedanTitik";
+import KendaliHeader from "@/components/KendaliHeader";
 import { RUBRIK, URAIAN_RUBRIK, BLOK_BMC, type HasilAnalisis, type Indikator } from "@/lib/tiga-agen/tipe";
 
 const NAMA_DIMENSI = {
@@ -480,9 +481,14 @@ export default function ResultPage() {
             <a href="/" className="inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors duration-150 focus-ring rounded">
               <ArrowLeft size={15} /> FeasiFlow AI
             </a>
-            {hasil && (
-              <TombolUtama href="/analyze" teks="Analisis baru" terang kecil />
-            )}
+            <div className="flex items-center gap-3">
+              <KendaliHeader gelap />
+              {hasil && (
+                <span className="hidden sm:inline-flex">
+                  <TombolUtama href="/analyze" teks="Analisis baru" terang kecil />
+                </span>
+              )}
+            </div>
           </div>
           <p className="mt-8 text-sm text-white/50">{hasil ? "Laporan kelayakan" : "Analisis berjalan"}</p>
           <JudulKata

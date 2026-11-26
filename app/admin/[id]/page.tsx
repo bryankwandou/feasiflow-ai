@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sudahMasuk } from "@/lib/admin";
 import { ambil, ambilLog, catatAdmin } from "@/lib/tiga-agen/simpan";
+import KendaliHeader from "@/components/KendaliHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Detail analisis — Admin", robots: { index: false } };
@@ -24,7 +25,10 @@ export default async function Detail({ params }: { params: { id: string } }) {
   return (
     <main className="min-h-screen px-4 py-8">
       <div className="mx-auto max-w-5xl">
-        <a href="/admin" className="text-sm text-muted hover:text-fg">Riwayat</a>
+        <div className="flex items-center justify-between gap-3">
+          <a href="/admin" className="text-sm text-muted hover:text-fg">Riwayat</a>
+          <KendaliHeader />
+        </div>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight break-words">Analisis {id}</h1>
         <p className="mt-2 text-sm text-muted">
           Status: {a?.status || "tidak ada baris analisis"}{a?.kelas ? `, ${a.kelas}, S ${Number(a.s).toFixed(1)}` : ""}{a?.galat ? `. ${a.galat}` : ""}.

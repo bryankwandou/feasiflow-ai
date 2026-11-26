@@ -1,6 +1,7 @@
 import { MedanTitik } from "@/components/MedanTitik";
 import { Muncul, Hitung } from "@/components/Muncul";
 import { TombolUtama, JudulKata } from "@/components/Gerak";
+import KendaliHeader from "@/components/KendaliHeader";
 
 const AGENTS = [
   { name: "A1 Riset", desc: "Memilih sendiri kueri dan laman, membaca isi laman secara utuh, lalu memeriksa Direktori dan Statistik LPBBTI OJK.", alat: "cari_web · baca_laman · cek_direktori_ojk · cek_statistik_ojk" },
@@ -48,11 +49,14 @@ export default function Home() {
       <nav className="nav-kaca sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="text-[15px] font-semibold tracking-tight">FeasiFlow AI</span>
-          <div className="flex items-center gap-7">
-            <a href="#cara-kerja" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Cara kerja</a>
-            <a href="#rubrik" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Rubrik</a>
-            <a href="#agen" className="garis hidden sm:inline text-sm text-muted hover:text-fg">Agen</a>
-            <TombolUtama href="/analyze" teks="Mulai analisis" kecil />
+          <div className="flex items-center gap-3 md:gap-7">
+            <a href="#cara-kerja" className="garis hidden md:inline text-sm text-muted hover:text-fg whitespace-nowrap">Cara kerja</a>
+            <a href="#rubrik" className="garis hidden md:inline text-sm text-muted hover:text-fg whitespace-nowrap">Rubrik</a>
+            <a href="#agen" className="garis hidden md:inline text-sm text-muted hover:text-fg whitespace-nowrap">Agen</a>
+            <KendaliHeader />
+            <span className="hidden sm:inline-flex">
+              <TombolUtama href="/analyze" teks="Mulai analisis" kecil />
+            </span>
           </div>
         </div>
         <span className="progres-gulir" aria-hidden="true" />
