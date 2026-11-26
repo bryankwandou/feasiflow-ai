@@ -28,7 +28,7 @@ function pitaBawah(x: number, y: number, t: number): number {
 
 export function MedanTitik({
   className = "",
-  warna = "#111111",
+  warna,
   varian = "hero",
 }: {
   className?: string;
@@ -74,7 +74,10 @@ export function MedanTitik({
       const sempit = lebar < 640;
       const jarak = sempit ? 7 : 9;
       ctx.clearRect(0, 0, lebar, tinggi);
-      ctx.fillStyle = warna;
+      // Tanpa warna tetap, titik mengikuti tema: hitam di mode terang, terang dan sedikit redup di mode gelap.
+      const gelap = document.documentElement.dataset.theme === "dark";
+      ctx.fillStyle = warna || (gelap ? "#e8e8e4" : "#111111");
+      ctx.globalAlpha = !warna && gelap ? 0.55 : 1;
       const tengah = lebar / 2;
       for (let y = jarak / 2; y < tinggi; y += jarak) {
         for (let x = jarak / 2; x < lebar; x += jarak) {
@@ -108,6 +111,9 @@ export function MedanTitik({
       if (terlihat && !dulu && jalan()) bingkai = requestAnimationFrame(gambar);
     });
     pantau.observe(kanvas);
+    // Gambar ulang segera saat tema berganti, termasuk saat gerak dimatikan.
+    const amatiTema = new MutationObserver(() => { cancelAnimationFrame(bingkai); gambar(0); });
+    amatiTema.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     const masuk = (e: FocusEvent) => { if (isian(e.target)) mengetik = true; };
     const keluar = (e: FocusEvent) => {
       if (!isian(e.target)) return;
@@ -123,6 +129,7 @@ export function MedanTitik({
       cancelAnimationFrame(bingkai);
       amati.disconnect();
       pantau.disconnect();
+      amatiTema.disconnect();
     };
   }, [warna, varian]);
 

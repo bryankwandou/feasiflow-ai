@@ -217,7 +217,7 @@
 ::view-transition-old(root) { z-index: 1; }
 ::view-transition-new(root) { z-index: 2; }
 html.tema-beralih::view-transition-old(root) { animation: tema-lama-mundur 0.72s cubic-bezier(0.7, 0, 0.25, 1) both; }
-@keyframes tema-lama-mundur { to { transform: scale(0.97); filter: brightness(0.8); } }
+@keyframes tema-lama-mundur { to { filter: brightness(0.85); } }
 /* Cadangan untuk peramban tanpa View Transitions: warna memudar 0,5 detik. */
 html.tema-pudar *,
 html.tema-pudar *::before,

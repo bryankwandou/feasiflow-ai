@@ -5,6 +5,8 @@
 import { useEffect, Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { KAMUS_SUMBER, type Kunci } from "@/lib/i18n";
+import { useBahasa } from "@/lib/i18n/PenyediaBahasa";
 
 /** Mengisi --x dan --y pada kartu .sorot yang dilewati kursor, dan menandai saat isian aktif. Dipasang sekali di layout. */
 export function PenyorotKartu() {
@@ -91,6 +93,18 @@ export function JudulKata({
   urutan?: "redup-dulu" | "utama-dulu";
   className?: string;
 }) {
+  // Judul diterjemahkan per bagian lewat kamus, supaya bagian abu-abu dan bagian utama tetap terpisah.
+  // Tanpa ini, penerjemah halaman memasukkan seluruh judul ke span pertama (abu-abu).
+  const { t, kode } = useBahasa();
+  const cari = (s: string) => {
+    const k = (Object.keys(KAMUS_SUMBER) as Kunci[]).find((x) => KAMUS_SUMBER[x] === s);
+    return k ? t(k) : null;
+  };
+  const r = cari(redup);
+  const u = cari(utama);
+  const sendiri = r != null && u != null;
+  if (sendiri) { redup = r; utama = u; }
+  const atribut = sendiri ? { "data-tanpa-terjemah": "" } : {};
   let i = 0;
   const kata = (teks: string, abu: boolean): ReactNode[] =>
     teks.split(" ").map((k, n, semua) => (
@@ -101,13 +115,13 @@ export function JudulKata({
     ));
   if (urutan === "utama-dulu") {
     return (
-      <h1 className={className}>
+      <h1 key={sendiri ? kode : undefined} className={className} {...atribut}>
         {kata(utama, false)} {kata(redup, true)}
       </h1>
     );
   }
   return (
-    <h1 className={className}>
+    <h1 key={sendiri ? kode : undefined} className={className} {...atribut}>
       {kata(redup, true)}
       <br />
       {kata(utama, false)}
