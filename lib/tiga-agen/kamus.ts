@@ -20,6 +20,7 @@ syariah tagih tahun tahap tambak tambah tanam tanah tangan tangkap tanggung tani
 tertentu tetap tiap tidak tim tindak tingkat tinggi titik toko tradisional transaksi transportasi tujuan tumbuh tunai turun uang ulang umum unit untuk
 untung usaha utama utang wajib waktu wanita warga warung wilayah wisata yang yayasan
 dan di ke dari atau oleh per serta juga para kami kamu mereka hingga sebagai secara tersebut itu bila jika supaya karena namun sudah telah setiap
+pinjol umkm ukm kur p2p lpbbti ojk bnpl bpr bprs ojol kopdit bumdes
 `;
 
 const DASAR_EN = `

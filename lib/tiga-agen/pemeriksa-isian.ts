@@ -7,6 +7,7 @@ import { LUAR_LPBBTI, LUAR_PRODUK } from "./aturan";
 import { bacaAngka } from "./dinamis";
 import { kataDikenal, wilayahDikenal } from "./kamus";
 import { catatLog } from "./log";
+import { deteksiInjeksi } from "./agentik";
 import { panggilGemini, type Pakai } from "./gemini";
 import type { CatatanPemeriksaanIsian, Ide, MasalahIsian, PertanyaanIsian } from "./tipe";
 
@@ -51,7 +52,15 @@ export const BATAS_PUTARAN = 2;
 export const PESAN_SAMPAH = "Isian ditolak sebelum analisis: ada isian yang kosong, terlalu pendek, acak, atau tidak bermakna. Ide tidak dinilai dan Gemini tidak dipanggil";
 
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
-const nilai = (ide: Partial<Ide>, k: keyof Ide) => String(ide[k] ?? "").trim();
+/** Karakter format tak terlihat (spasi lebar nol, penanda arah, BOM) dibuang agar isian "kosong terselubung" terbaca kosong. */
+const bersihkan = (s: unknown) => String(s ?? "").replace(/\p{Cf}/gu, "").trim();
+const nilai = (ide: Partial<Ide>, k: keyof Ide) => bersihkan(ide[k]);
+/** Bentuk pembanding: huruf dan angka saja, sehingga "Pedagang sayur." dan "pedagang sayur!" dianggap sama. */
+const inti = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+/** Isian yang boleh berupa angka saja, misalnya jumlah calon pelanggan. */
+const BOLEH_ANGKA: (keyof Ide)[] = ["calon_pelanggan"];
+/** Jawaban "belum tahu" pada isian wajib: isian belum benar-benar diisi. */
+const BELUM_TAHU = /^(?:(?:saya\s+)?(?:tidak|belum|gak|ga|nggak|ngga|enggak)\s+(?:tahu|tau|ada|yakin|jelas|pasti|kepikiran)|entah|kosong|tbd|tba|none|unknown|idk|dunno|nanti(?:\s+saja)?|rahasia)[\s.!?]*$/i;
 
 const KETIKAN_ACAK = /asdf|qwert|zxcv|sdfg|dfgh|fghj|ghjk|hjkl|uiop|yuio|wasd/i;
 const LOREM = /lorem|ipsum|dolor sit|consectetur adipiscing/i;
@@ -130,6 +139,15 @@ export function periksaKode(ide: Partial<Ide>): HasilPeriksa {
       tambah(k, "isinya salinan placeholder formulir, bukan ide Anda", "tolak", true);
       continue;
     }
+    // Emoji, tanda baca, angka saja, atau aksara non-Latin lolos pemeriksaan kata di bawah karena tidak ada kata yang diperiksa.
+    if (!/[a-zÀ-ɏ]/i.test(v) && !(BOLEH_ANGKA.includes(k) && /\d/.test(v))) {
+      tambah(k, "tidak memuat huruf Latin; tulis dengan kata-kata dalam bahasa Indonesia atau Inggris", "tolak", true);
+      continue;
+    }
+    if (WAJIB.includes(k) && BELUM_TAHU.test(v)) { tambah(k, "isian wajib belum dijawab (jawaban seperti \"tidak tahu\")", "tolak", true); continue; }
+    // Instruksi untuk AI di dalam isian ditolak, sama dengan jalur ambil dokumen.
+    const injeksi = deteksiInjeksi(v);
+    if (injeksi.length) { tambah(k, "memuat instruksi untuk AI (" + injeksi.join(", ") + "), bukan keterangan ide", "tolak", true); continue; }
     const alasan = alasanSampah(v) || alasanTakBermakna(k, v);
     if (alasan) { tambah(k, alasan, "tolak", true); continue; }
     if (contoh && norm(v) === norm(contoh)) tambah(k, "isinya sama persis dengan contoh formulir", "peringatan");
@@ -138,7 +156,7 @@ export function periksaKode(ide: Partial<Ide>): HasilPeriksa {
   // Isian berbeda yang isinya identik.
   const sudah = new Map<string, keyof Ide>();
   for (const k of TEKS) {
-    const v = norm(nilai(ide, k));
+    const v = inti(nilai(ide, k));
     if (v.length < 3) continue;
     const lain = sudah.get(v);
     if (lain) tambah(k, `isinya identik dengan isian ${lain}`, "tolak", true);
@@ -240,7 +258,7 @@ export const pemeriksaAktif = () => process.env.PEMERIKSA_ISIAN !== "0";
 /** Baca isian dari badan permintaan: semua kunci formulir, dipangkas 1200 karakter. */
 export function bacaIde(p: Partial<Record<keyof Ide, unknown>>): Ide {
   return Object.fromEntries(
-    KUNCI_IDE.map((k) => [k, String(p[k] ?? "").trim().slice(0, 1200)] as const).filter(([, v]) => v),
+    KUNCI_IDE.map((k) => [k, bersihkan(typeof p[k] === "object" ? "" : p[k]).slice(0, 1200)] as const).filter(([, v]) => v),
   ) as unknown as Ide;
 }
 
