@@ -13,6 +13,11 @@ import { KAMUS_SUMBER, muatKamus, type KodeBahasa, type Kunci } from "@/lib/i18n
 import { useBahasa } from "@/lib/i18n/PenyediaBahasa";
 
 const asli = new WeakMap<Text, string>();
+// Teks terakhir yang ditulis penerjemah ke simpul. Bila isi simpul berbeda dari teks asli dan dari teks ini,
+// berarti React yang mengubahnya (misalnya "Analisis berjalan" menjadi "Laporan kelayakan"), jadi teks asli diperbarui.
+// Tanpa ini, setiap perubahan React dikembalikan ke teks lama dan status halaman membeku.
+const tertulis = new WeakMap<Text, string>();
+const tulis = (t: Text, s: string) => { if (t.data !== s) t.data = s; tertulis.set(t, s); };
 const asliAttr = new WeakMap<Element, Record<string, string>>();
 const ATTR = ["placeholder", "title", "aria-label"];
 const ELEMEN = "h1,h2,h3,h4,p,li,td,th,dt,dd,label,button,a,summary,option,span,div,legend,figcaption,small,strong,em";
@@ -36,9 +41,9 @@ function terapkan(peta: Map<string, string> | null) {
   while ((n = jalan.nextNode())) {
     const t = n as Text;
     if (!t.parentElement || t.parentElement.closest(LEWATI)) continue;
-    if (!asli.has(t)) asli.set(t, t.data);
-    const a = asli.get(t)!;
-    if (t.data !== a) t.data = a;
+    const lama = asli.get(t);
+    if (lama === undefined || (t.data !== lama && t.data !== tertulis.get(t))) asli.set(t, t.data);
+    tulis(t, asli.get(t)!);
     simpul.push(t);
   }
   if (peta) {
@@ -54,7 +59,7 @@ function terapkan(peta: Map<string, string> | null) {
       const baru = peta.get(norm(ts.map((t) => asli.get(t) ?? t.data).join("")));
       if (!baru) return;
       const pertama = ts.find((t) => norm(t.data)) || ts[0];
-      ts.forEach((t) => { t.data = t === pertama ? baru : (/\s$/.test(t.data) ? " " : ""); sudah.add(t); });
+      ts.forEach((t) => { tulis(t, t === pertama ? baru : (/\s$/.test(t.data) ? " " : "")); sudah.add(t); });
     });
     // 2) per teks
     for (const t of simpul) {
@@ -62,7 +67,7 @@ function terapkan(peta: Map<string, string> | null) {
       const a = asli.get(t)!;
       const k = norm(a);
       const baru = k ? peta.get(k) : undefined;
-      if (baru) t.data = a.replace(a.trim(), baru);
+      if (baru) tulis(t, a.replace(a.trim(), baru));
     }
   }
   document.body.querySelectorAll("[placeholder],[title],[aria-label]").forEach((el) => {
