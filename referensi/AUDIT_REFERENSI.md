@@ -110,3 +110,12 @@ Lampiran 8 (daftar arsip aturan fintech 1847 sampai 2026) adalah data penelitian
 ## Lampiran prompt
 
 Naskah sumber belum memuat prompt sistem. Lampiran 17 baru, "Prompt Sistem Agen A1, A2, dan A3 (versi yang dipakai di produksi)", memuat teks prompt versi v2 (24 November 2026) yang dirangkai dari `lib/tiga-agen/prompt.ts`, `agentik.ts`, dan `tipe.ts` pada repo produksi, lengkap dengan sidik SHA-256. Biodata menjadi Lampiran 18. Subbab 3.3.2 diberi rujukan singkat ke Lampiran 17, dan daftar isi serta daftar lampiran diperbarui (Lampiran 17 hlm. 88, Lampiran 18 hlm. 95).
+
+## Verifikasi manual regulasi (26 November 2026)
+
+Dua regulasi yang paling baru dicek langsung dari teks PDF salinan resmi di folder `pdf/`, bukan dari keterangan halaman web.
+
+| Entri | Isi PDF | Cocok dengan .bib dan naskah |
+|---|---|---|
+| `RepublikIndonesia2026` | UU Nomor 4 Tahun 2026 tentang Perubahan atas UU Nomor 4 Tahun 2023 tentang P2SK. Disahkan dan diundangkan di Jakarta 17 Juni 2026, Lembaran Negara RI Tahun 2026 Nomor 62, Tambahan Lembaran Negara Nomor 7180. Konsiderans huruf c: perbaikan sebagai tindak lanjut Putusan Mahkamah Konstitusi. 207 halaman. | Ya: nomor, tahun, judul, tanggal, dan nomor Lembaran Negara sama. |
+| `OJK2024` | POJK Nomor 40 Tahun 2024 tentang Layanan Pendanaan Bersama Berbasis Teknologi Informasi. Ditetapkan 24 Desember 2024, diundangkan 27 Desember 2024, Lembaran Negara RI Tahun 2024 Nomor 53/OJK. Konsiderans menyebut pengaturan sebelumnya dalam POJK 10/POJK.05/2022. 217 halaman. | Ya: nomor, tahun, dan judul sama; terbit kurang dari 4 tahun sebelum November 2026. |
