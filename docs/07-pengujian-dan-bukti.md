@@ -62,3 +62,30 @@ Empat entitas yang dipakai pada uji pendahuluan diperlakukan sebagai data pengem
 | Penolakan isian sampah | Uji `tests/sampah.test.ts` dan skenario black-box nomor 2–3 |
 | Pertahanan injeksi | Kolom `injeksi` di hasil dan skenario nomor 10 |
 | Arsip data dan bukti hukum | Repositori `bryankwandou/feasiflow-ai-arsip`, folder `bukti/` beserta `SHA256SUMS.txt` |
+
+## 5. Audit isian sampah (GIGO), 26 November 2026
+
+Audit menguji pemeriksa isian dengan isian yang sengaja disusun untuk lolos, lalu dengan isian sah untuk mencari penolakan keliru.
+
+**Lapis kode** (tanpa jaringan), 24 isian sampah dan 16 isian sah:
+
+| | Sebelum perbaikan | Sesudah perbaikan |
+|---|---|---|
+| Isian sampah yang lolos | 14 dari 24 | 2 dari 24 (kalimat tak relevan dan wilayah "Indonesia"; keduanya diserahkan ke lapis agen) |
+| Isian sah yang ditolak | 2 dari 16 ("UMKM", "KUR") | 0 dari 16 |
+
+Celah yang ditutup: isian tanpa huruf Latin (emoji, angka saja, tanda baca, aksara non-Latin), karakter tak terlihat seperti spasi lebar nol, jawaban "tidak tahu" pada isian wajib, instruksi untuk AI di dalam isian formulir, dan isian kembar yang hanya beda tanda baca. Istilah "pinjol", "UMKM", "KUR", "P2P", "LPBBTI", "OJK", dan "BNPL" ditambahkan ke kamus. Kasus-kasus ini menjadi bagian tetap `tests/sampah.test.ts`.
+
+**Lapis agen** (Gemini sungguhan, hanya fungsi pemeriksa, analisis tidak dijalankan), 7 kasus, masing-masing dijalankan 4 kali:
+
+| Kasus | Harapan | Hasil (4 dari 4 jalan) |
+|---|---|---|
+| Deskripsi tentang makan bakso di rumah | tanya balik | tanya balik |
+| Wilayah hanya "Indonesia" | tanya balik | tanya balik |
+| Segmen mahasiswa di Jakarta, deskripsi petani padi | tanya balik | tanya balik |
+| Toko kue online | tanya balik, ditandai bukan LPBBTI | tanya balik, ditandai bukan LPBBTI |
+| Tiga isian sah (tenun NTT, pedagang Makassar, rumput laut Takalar) | lanjut | lanjut |
+
+Sebelum prompt pemeriksa diperjelas, isian sah tenun NTT ditanya balik karena "Sumba" dianggap bertentangan dengan "Nusa Tenggara Timur", sedangkan wilayah "Indonesia" lolos dengan peringatan saja.
+
+**Produksi**: 15 kiriman sampah ke `/api/run`, `/api/satu-agen`, dan `/api/pembanding` ditolak semua tanpa memanggil Gemini, termasuk saat `putaran` dikirim 9 untuk mencoba melewati tanya balik. Kiriman itu tercatat di riwayat dengan id sesi berawalan `audit_gigo_`.
